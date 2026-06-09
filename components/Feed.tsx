@@ -5,9 +5,14 @@ import ProductRow from './ProductRow'
 
 export default async function Feed({ sort }: { sort: 'new' | 'hot' }) {
   const insforge = getServerClient()
-  const { data } = await insforge.database.rpc('list_products', { p_sort: sort, p_limit: 30, p_offset: 0 })
-  const products = (data ?? []) as Product[]
+  const { data, error } = await insforge.database.rpc('list_products', { p_sort: sort, p_limit: 30, p_offset: 0 })
 
+  if (error) {
+    console.error('list_products failed', error)
+    return <p className="mono p-8 text-[var(--muted)]">Couldn’t load the feed. Try again.</p>
+  }
+
+  const products = (data ?? []) as Product[]
   if (products.length === 0) {
     return <p className="mono p-8 text-[var(--muted)]">Nothing here yet. Be the first to ship.</p>
   }
