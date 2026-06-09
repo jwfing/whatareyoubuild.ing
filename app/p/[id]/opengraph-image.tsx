@@ -19,7 +19,7 @@ export default async function OG({ params }: { params: Promise<{ id: string }> }
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1.2, padding: 56, borderRight: '12px solid #111' }}>
           <div style={{ fontSize: 22, letterSpacing: 2 }}>WHAT ARE YOU BUILDING</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 24, color: '#666' }}>★ FEATURED</div>
+            <div style={{ fontSize: 24, color: '#666', letterSpacing: 3 }}>FEATURED</div>
             <div style={{ fontSize: 88, fontWeight: 800, lineHeight: 1, marginTop: 8 }}>{name}</div>
             <div style={{ fontSize: 32, color: '#555', marginTop: 16 }}>{tagline}</div>
           </div>
@@ -30,7 +30,10 @@ export default async function OG({ params }: { params: Promise<{ id: string }> }
             // eslint-disable-next-line @next/next/no-img-element
             <img src={image} width={480} height={630} style={{ objectFit: 'cover', width: '100%', height: '100%', position: 'absolute', opacity: 0.85 }} alt="" />
           ) : null}
-          <div style={{ display: 'flex', margin: 40, padding: '16px 28px', border: '4px solid #f4f1ea', color: '#f4f1ea', fontSize: 40, zIndex: 1 }}>▲ {votes}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: 40, padding: '16px 28px', border: '4px solid #f4f1ea', color: '#f4f1ea', fontSize: 40, zIndex: 1 }}>
+            <div style={{ display: 'flex', width: 0, height: 0, borderLeft: '16px solid transparent', borderRight: '16px solid transparent', borderBottom: '26px solid #f4f1ea' }} />
+            <div style={{ display: 'flex' }}>{votes}</div>
+          </div>
         </div>
       </div>
     ),
