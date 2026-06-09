@@ -86,6 +86,7 @@
 - **Auth**：Google / GitHub OAuth。
 - **Postgres**：上述两表 + RLS + 维护 `vote_count` 的触发器 / 函数。
 - **Storage**：存产品配图（公开读）。
+- **Posthog Integrate**：使用 Posthog 进行转化追踪
 
 ### 前端 — Next.js（App Router）
 选 Next.js 而非纯 SPA 的硬原因：**产品详情页必须 SSR**——X / 微信等抓取器不执行 JS，只有服务端把 `og:image` / `og:title` 等 meta 直出，分享卡片才会显示。这是裂变引擎能否成立的前提。
@@ -97,7 +98,7 @@
 
 ## 埋点 / 推广量化（核心目标）
 
-用 **PostHog** 打通漏斗：
+用 **PostHog** 打通漏斗（InsForge 自带了 Posthog integration）：
 
 ```
 分享链接点击 → 落地产品页 → 浏览首页 → OAuth 注册 → 点赞 / 发布
