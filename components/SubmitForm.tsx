@@ -1,24 +1,16 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getBrowserClient } from '@/lib/insforge'
 import { track } from '@/lib/posthog'
 import AuthButtons from './AuthButtons'
 
-export default function SubmitForm() {
+export default function SubmitForm({ authed }: { authed: boolean }) {
   const router = useRouter()
   const insforge = getBrowserClient()
-  const [authed, setAuthed] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
-  useEffect(() => {
-    insforge.auth.getCurrentUser()
-      .then(({ data }) => setAuthed(!!data.user))
-      .catch(() => setAuthed(false))
-  }, [])
-
-  if (authed === null) return <p className="mono p-8">…</p>
   if (!authed) return (
     <div className="p-8">
       <p className="mb-3">Sign in to post your product.</p>

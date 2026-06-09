@@ -5,22 +5,29 @@ import { toggleVote } from '@/lib/vote'
 import { track } from '@/lib/posthog'
 import AuthButtons from './AuthButtons'
 
-export default function VoteButton({ productId, initialCount }: { productId: string; initialCount: number }) {
+export default function VoteButton({ productId, initialCount, userId }: { productId: string; initialCount: number; userId: string | null }) {
   const insforge = getBrowserClient()
   const [state, setState] = useState({ voted: false, count: initialCount })
-  const [userId, setUserId] = useState<string | null>(null)
   const [needAuth, setNeedAuth] = useState(false)
   const [pending, setPending] = useState(false)
 
+  // "Did I already vote?" — public read (votes_select_all), keyed on the
+  // server-provided userId. No getCurrentUser (that triggers a cross-domain
+  // backend refresh in this SSR setup).
   useEffect(() => {
-    insforge.auth.getCurrentUser().then(async ({ data }) => {
-      if (!data.user) return
-      setUserId(data.user.id)
-      const { data: rows } = await insforge.database
-        .from('votes').select('id').eq('product_id', productId).eq('user_id', data.user.id)
-      setState(s => ({ ...s, voted: !!(rows && rows.length) }))
-    }).catch(() => {})
-  }, [productId])
+    if (!userId) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data: rows } = await insforge.database
+          .from('votes').select('id').eq('product_id', productId).eq('user_id', userId)
+        if (!cancelled) setState(s => ({ ...s, voted: !!(rows && rows.length) }))
+      } catch {
+        /* ignore — vote state stays unvoted */
+      }
+    })()
+    return () => { cancelled = true }
+  }, [productId, userId])
 
   async function onClick() {
     if (pending) return

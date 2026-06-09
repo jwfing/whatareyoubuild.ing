@@ -6,6 +6,7 @@ import VoteButton from '@/components/VoteButton'
 import ShareButton from '@/components/ShareButton'
 import PageView from '@/components/PageView'
 import { getServerClient, type Product } from '@/lib/insforge'
+import { getServerUser } from '@/lib/auth-server'
 
 function safeHttpUrl(raw: string | null): string | null {
   if (!raw) return null
@@ -39,9 +40,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const p = await getProduct(id)
   if (!p) notFound()
   const safeLink = safeHttpUrl(p.link)
+  const user = await getServerUser()
   return (
     <main>
-      <Header />
+      <Header user={user} />
       <PageView productId={p.id} />
       <article className="mx-auto max-w-2xl px-5 py-6">
         <div className="rule flex gap-4 p-4">
@@ -54,7 +56,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               <ShareButton productId={p.id} />
             </div>
           </div>
-          <VoteButton productId={p.id} initialCount={p.vote_count} />
+          <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
         </div>
         {p.description && <div className="mt-4 whitespace-pre-wrap">{p.description}</div>}
       </article>
