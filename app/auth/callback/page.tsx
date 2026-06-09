@@ -8,10 +8,18 @@ export default function AuthCallback() {
   const router = useRouter()
   useEffect(() => {
     const run = async () => {
-      const insforge = getBrowserClient()
-      const { data } = await insforge.auth.getCurrentUser()
-      if (data.user) track.signupCompleted(data.user.providers?.[0] ?? 'oauth')
-      router.replace('/')
+      try {
+        const insforge = getBrowserClient()
+        const { data } = await insforge.auth.getCurrentUser()
+        const user = data.user
+        if (user) {
+          const ageMs = Date.now() - new Date(user.createdAt).getTime()
+          const isNewSignup = ageMs >= 0 && ageMs < 120_000
+          if (isNewSignup) track.signupCompleted(user.providers?.[0] ?? 'oauth')
+        }
+      } finally {
+        router.replace('/')
+      }
     }
     run()
   }, [router])

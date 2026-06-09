@@ -9,10 +9,12 @@ export default function Header() {
   const [ready, setReady] = useState(false)
   const insforge = getBrowserClient()
   useEffect(() => {
-    insforge.auth.getCurrentUser().then(({ data }) => {
-      setName(data.user?.profile?.name ?? data.user?.email ?? null)
-      setReady(true)
-    })
+    insforge.auth.getCurrentUser()
+      .then(({ data }) => {
+        setName(data.user?.profile?.name ?? data.user?.email ?? null)
+      })
+      .catch(() => setName(null))
+      .finally(() => setReady(true))
   }, [])
   return (
     <header className="rule border-x-0 border-t-0 flex items-baseline justify-between px-5 py-3">
