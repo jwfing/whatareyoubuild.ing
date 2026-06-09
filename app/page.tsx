@@ -1,10 +1,13 @@
 import Header from '@/components/Header'
+import Feed from '@/components/Feed'
 
-export default function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ sort?: string }> }) {
+  const { sort } = await searchParams
+  const s = sort === 'hot' ? 'hot' : 'new'
   return (
     <main>
       <Header />
-      <div className="mono p-8">Feed coming in C3.</div>
+      <Feed sort={s} />
     </main>
   )
 }
