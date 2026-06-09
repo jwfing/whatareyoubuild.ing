@@ -3,6 +3,8 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import VoteButton from '@/components/VoteButton'
+import ShareButton from '@/components/ShareButton'
+import PageView from '@/components/PageView'
 import { getServerClient, type Product } from '@/lib/insforge'
 
 function safeHttpUrl(raw: string | null): string | null {
@@ -40,6 +42,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   return (
     <main>
       <Header />
+      <PageView productId={p.id} />
       <article className="mx-auto max-w-2xl px-5 py-6">
         <div className="rule flex gap-4 p-4">
           <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] object-cover" />
@@ -47,6 +50,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <h1 className="masthead text-3xl">{p.name}</h1>
             <p className="text-[var(--muted)]">{p.tagline}</p>
             {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 inline-block text-sm underline">Visit →</a>}
+            <div className="mt-3">
+              <ShareButton productId={p.id} />
+            </div>
           </div>
           <VoteButton productId={p.id} initialCount={p.vote_count} />
         </div>
