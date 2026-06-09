@@ -10,6 +10,7 @@ export default function VoteButton({ productId, initialCount }: { productId: str
   const [state, setState] = useState({ voted: false, count: initialCount })
   const [userId, setUserId] = useState<string | null>(null)
   const [needAuth, setNeedAuth] = useState(false)
+  const [pending, setPending] = useState(false)
 
   useEffect(() => {
     insforge.auth.getCurrentUser().then(async ({ data }) => {
@@ -22,23 +23,29 @@ export default function VoteButton({ productId, initialCount }: { productId: str
   }, [productId])
 
   async function onClick() {
+    if (pending) return
     if (!userId) { setNeedAuth(true); return }
+    setPending(true)
     const prev = state
     const next = toggleVote(state)
     setState(next) // optimistic
-    if (next.voted) {
-      const { error } = await insforge.database.from('votes').insert({ product_id: productId })
-      if (error) setState(prev); else track.voteCast(productId)
-    } else {
-      const { error } = await insforge.database.from('votes').delete()
-        .eq('product_id', productId).eq('user_id', userId)
-      if (error) setState(prev)
+    try {
+      if (next.voted) {
+        const { error } = await insforge.database.from('votes').insert({ product_id: productId })
+        if (error) setState(prev); else track.voteCast(productId)
+      } else {
+        const { error } = await insforge.database.from('votes').delete()
+          .eq('product_id', productId).eq('user_id', userId)
+        if (error) setState(prev)
+      }
+    } finally {
+      setPending(false)
     }
   }
 
   return (
     <div>
-      <button onClick={onClick} className={`rule mono px-4 py-3 text-center ${state.voted ? 'bg-[var(--ink)] text-[var(--paper)]' : ''}`}>
+      <button onClick={onClick} disabled={pending} aria-label={state.voted ? 'Remove your vote' : 'Upvote'} aria-pressed={state.voted} className={`rule mono px-4 py-3 text-center ${state.voted ? 'bg-[var(--ink)] text-[var(--paper)]' : ''}`}>
         ▲<br /><b>{state.count}</b>
       </button>
       {needAuth && <div className="mt-2"><p className="mono mb-1 text-xs">Sign in to vote:</p><AuthButtons /></div>}

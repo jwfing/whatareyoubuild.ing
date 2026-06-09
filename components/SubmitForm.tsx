@@ -35,6 +35,18 @@ export default function SubmitForm() {
     const tagline = String(form.get('tagline') || '').trim()
     if (!name || !tagline) { setErr('Name and tagline are required.'); setBusy(false); return }
 
+    const rawLink = String(form.get('link') || '').trim()
+    let link: string | null = null
+    if (rawLink) {
+      try {
+        const u = new URL(rawLink)
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('bad scheme')
+        link = u.toString()
+      } catch {
+        setErr('Link must be a valid http(s) URL.'); setBusy(false); return
+      }
+    }
+
     const file = form.get('image') as File
     if (!file || file.size === 0) { setErr('An image is required.'); setBusy(false); return }
     if (!file.type.startsWith('image/')) { setErr('Please choose an image file.'); setBusy(false); return }
@@ -46,7 +58,7 @@ export default function SubmitForm() {
     const { data, error } = await insforge.database.from('products').insert({
       name,
       tagline,
-      link: String(form.get('link') || '').trim() || null,
+      link,
       description: String(form.get('description') || '').trim() || null,
       image_url: up.data.url,
       image_key: up.data.key,
