@@ -1,16 +1,11 @@
 'use client'
-import { getBrowserClient } from '@/lib/insforge'
+import { signInGoogle, signInGitHub } from '@/app/auth/actions'
 
 export default function AuthButtons() {
-  const insforge = getBrowserClient()
-  const signIn = (provider: 'google' | 'github') =>
-    insforge.auth.signInWithOAuth(provider, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-    }).catch((e) => console.error('OAuth start failed', e))
   return (
-    <div className="flex gap-2">
-      <button className="rule mono px-3 py-1 text-sm" onClick={() => signIn('google')}>Google</button>
-      <button className="rule mono px-3 py-1 text-sm" onClick={() => signIn('github')}>GitHub</button>
-    </div>
+    <form className="flex gap-2">
+      <button formAction={signInGoogle} className="rule mono px-3 py-1 text-sm">Google</button>
+      <button formAction={signInGitHub} className="rule mono px-3 py-1 text-sm">GitHub</button>
+    </form>
   )
 }

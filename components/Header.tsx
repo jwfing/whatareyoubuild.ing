@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getBrowserClient } from '@/lib/insforge'
+import { track } from '@/lib/posthog'
 import AuthButtons from './AuthButtons'
 
 export default function Header() {
@@ -11,7 +12,18 @@ export default function Header() {
   useEffect(() => {
     insforge.auth.getCurrentUser()
       .then(({ data }) => {
-        setName(data.user?.profile?.name ?? data.user?.email ?? null)
+        const user = data.user
+        setName(user?.profile?.name ?? user?.email ?? null)
+        // Fire signup_completed once for brand-new users (the client OAuth
+        // callback page that used to do this is gone in the SSR flow).
+        if (user && typeof window !== 'undefined') {
+          const isNewSignup = Date.now() - new Date(user.createdAt).getTime() < 120_000
+          const alreadyTracked = sessionStorage.getItem('signup_tracked')
+          if (isNewSignup && !alreadyTracked) {
+            track.signupCompleted(user.providers?.[0] ?? 'oauth')
+            sessionStorage.setItem('signup_tracked', '1')
+          }
+        }
       })
       .catch(() => setName(null))
       .finally(() => setReady(true))
