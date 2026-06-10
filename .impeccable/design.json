@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-09T00:00:00.000Z",
+  "title": "Design System: What Are You Building",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#111111",
+        "tonalRamp": ["#000000", "#111111", "#2a2a2a", "#444444", "#666666", "#999999", "#c4c4c4", "#e8e8e8"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#f4f1ea",
+        "tonalRamp": ["#2b271f", "#4a4337", "#6b6253", "#8c8374", "#ada495", "#cfc7b9", "#e9e4da", "#f4f1ea"]
+      },
+      "caption-gray": {
+        "role": "neutral",
+        "displayName": "Caption Gray",
+        "canonical": "#555555",
+        "tonalRamp": ["#1f1f1f", "#333333", "#444444", "#555555", "#777777", "#999999", "#bbbbbb", "#dddddd"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#dddddd",
+        "tonalRamp": ["#666666", "#888888", "#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd", "#e8e8e8", "#f2f2f2"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Masthead wordmark and featured-headline product name. The loudest type on the page." },
+      "headline": { "displayName": "Headline", "purpose": "A product's name on its detail page." },
+      "body": { "displayName": "Body", "purpose": "Descriptions and prose, set in the serif. Cap measure at 65-75ch." },
+      "label": { "displayName": "Label / Mono", "purpose": "Vote counts, ranks, NEW/HOT nav, section tags, and controls. Never prose." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-out-quint", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Default easing for state transitions (vote inversion, hover)." },
+      { "name": "duration-base", "value": "180ms", "purpose": "Standard transition duration; keep state changes <=200ms." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Rule Button",
+      "kind": "button",
+      "refersTo": "button-rule",
+      "description": "Default control (+ SUBMIT, Google/GitHub sign-in). Flat paper, 2px ink rule, monospace label.",
+      "html": "<button class=\"ds-btn-rule\">+ SUBMIT</button>",
+      "css": ".ds-btn-rule { background: var(--paper, #f4f1ea); color: var(--ink, #111); border: 2px solid var(--ink, #111); border-radius: 0; padding: 0.25rem 0.75rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.75rem; cursor: pointer; transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-rule:hover { background: var(--ink, #111); color: var(--paper, #f4f1ea); } .ds-btn-rule:focus-visible { outline: 2px solid var(--ink, #111); outline-offset: 2px; }"
+    },
+    {
+      "name": "Vote Button",
+      "kind": "button",
+      "refersTo": "vote-button",
+      "description": "Tall ink-ruled upvote block: monospace caret + count. Add .is-voted for the inverted active state.",
+      "html": "<button class=\"ds-vote\" aria-pressed=\"false\" aria-label=\"Upvote\"><span class=\"ds-vote-caret\"></span><b>214</b></button>",
+      "css": ".ds-vote { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; background: var(--paper, #f4f1ea); color: var(--ink, #111); border: 2px solid var(--ink, #111); border-radius: 0; padding: 0.75rem 1rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.75rem; cursor: pointer; transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1); } .ds-vote-caret { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 9px solid currentColor; } .ds-vote:hover { background: #e9e4da; } .ds-vote.is-voted { background: var(--ink, #111); color: var(--paper, #f4f1ea); } .ds-vote:focus-visible { outline: 2px solid var(--ink, #111); outline-offset: 2px; }"
+    },
+    {
+      "name": "Rule Input",
+      "kind": "input",
+      "refersTo": "input-rule",
+      "description": "Form field: paper fill, 2px ink rule, hard corners, serif text.",
+      "html": "<input class=\"ds-input\" placeholder=\"Product name\" aria-label=\"Product name\" />",
+      "css": ".ds-input { width: 100%; background: var(--paper, #f4f1ea); color: var(--ink, #111); border: 2px solid var(--ink, #111); border-radius: 0; padding: 0.5rem 0.75rem; font-family: 'Fraunces', Georgia, serif; font-size: 1rem; } .ds-input::placeholder { color: var(--muted, #555); } .ds-input:focus-visible { outline: 2px solid var(--ink, #111); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ranked Row",
+      "kind": "custom",
+      "refersTo": "product-row",
+      "description": "One entry in the front-page index: rank (mono), thumbnail, name + tagline, vote count. Divided from siblings by a 1px hairline.",
+      "html": "<a class=\"ds-row\" href=\"#\"><span class=\"ds-row-rank\">2</span><span class=\"ds-row-thumb\"></span><span class=\"ds-row-meta\"><b>Inkwell</b><span>Markdown notes that sync everywhere</span></span><span class=\"ds-row-votes\">▲ 188</span></a>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0; border-bottom: 1px solid var(--line, #ddd); text-decoration: none; color: var(--ink, #111); font-family: 'Fraunces', Georgia, serif; } .ds-row-rank { width: 1.5rem; text-align: right; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.875rem; } .ds-row-thumb { width: 40px; height: 40px; background: var(--ink, #111); flex: none; } .ds-row-meta { flex: 1; } .ds-row-meta b { display: block; font-weight: 700; } .ds-row-meta span { display: block; font-size: 0.875rem; color: var(--muted, #555); } .ds-row-votes { border: 2px solid var(--ink, #111); padding: 0.2rem 0.5rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.75rem; }"
+    },
+    {
+      "name": "Masthead",
+      "kind": "nav",
+      "refersTo": "masthead",
+      "description": "Full-width header with a bottom hairline. Display-weight wordmark, monospace controls.",
+      "html": "<header class=\"ds-masthead\"><a class=\"ds-wordmark\" href=\"#\">WHAT ARE YOU BUILDING</a><nav class=\"ds-mast-nav\"><a class=\"ds-btn-rule\" href=\"#\">+ SUBMIT</a></nav></header>",
+      "css": ".ds-masthead { display: flex; align-items: baseline; justify-content: space-between; padding: 0.75rem 1.25rem; border-bottom: 2px solid var(--ink, #111); background: var(--paper, #f4f1ea); } .ds-wordmark { font-family: 'Fraunces', Georgia, serif; font-weight: 800; letter-spacing: -0.5px; font-size: 1.125rem; color: var(--ink, #111); text-decoration: none; } .ds-mast-nav .ds-btn-rule { text-decoration: none; }"
+    },
+    {
+      "name": "Featured Headline",
+      "kind": "card",
+      "refersTo": "featured",
+      "description": "The front-page lead: heavier 2px frame, large serif product name, a TODAY'S TOP kicker, and a vote block. The one sanctioned tracked-uppercase label.",
+      "html": "<a class=\"ds-featured\" href=\"#\"><span class=\"ds-featured-thumb\"></span><span class=\"ds-featured-body\"><span class=\"ds-kicker\">★ TODAY'S TOP</span><span class=\"ds-featured-name\">Cron.fyi</span><span class=\"ds-featured-tag\">A friendlier way to write cron jobs</span></span><span class=\"ds-featured-votes\">▲ 214</span></a>",
+      "css": ".ds-featured { display: flex; gap: 1rem; align-items: stretch; padding: 1rem; border: 2px solid var(--ink, #111); background: var(--paper, #f4f1ea); text-decoration: none; color: var(--ink, #111); font-family: 'Fraunces', Georgia, serif; } .ds-featured-thumb { width: 120px; height: 90px; background: var(--ink, #111); flex: none; } .ds-featured-body { flex: 1; } .ds-kicker { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.625rem; letter-spacing: 0.1em; text-transform: uppercase; } .ds-featured-name { display: block; font-weight: 800; letter-spacing: -0.5px; font-size: 1.5rem; line-height: 1.05; } .ds-featured-tag { display: block; font-size: 0.875rem; color: var(--muted, #555); } .ds-featured-votes { align-self: center; border: 2px solid var(--ink, #111); padding: 0.4rem 0.6rem; font-family: 'JetBrains Mono', ui-monospace, monospace; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Builder's Broadsheet",
+    "overview": "The interface is a printed broadsheet for people who ship: a bold serif masthead, a ranked front-page index of what's being built, entries separated by hairline rules. No color, no gradient, no shadow, no rounded corner — just ink pressed onto warm paper. The restraint is the statement: in a feed full of AI-generated SaaS pages, a black-and-white press page reads as taste, and taste is the first filter for the builders we want. The system is refined and restrained, carried by a single confident gesture: a 2px ink rule. Monospace is reserved for the broadsheet's machinery — counts, ranks, tags, nav — so metadata reads as type-set, never as prose.",
+    "keyCharacteristics": [
+      "Monochrome: warm paper + near-black ink, zero accent color.",
+      "Zero border-radius. Everything is hard-cornered.",
+      "No shadows; depth comes from 2px ink rules and 1px hairlines.",
+      "Serif (Fraunces) for everything readable; monospace (JetBrains Mono) only for counts, ranks, tags, and nav.",
+      "The ranked, hairline-ruled feed is the signature surface."
+    ],
+    "rules": [
+      { "name": "The Monochrome Rule", "body": "There is no color in this product. If a swatch has chroma, it does not belong. Emphasis is weight, scale, and ink/paper inversion — never hue.", "section": "colors" },
+      { "name": "The Honest Gray Rule", "body": "Caption Gray (#555555) is the floor for secondary text on Paper, never lighter. Light-gray-for-elegance is forbidden.", "section": "colors" },
+      { "name": "The Mono-for-Machinery Rule", "body": "Monospace appears only on counts, ranks, nav, tags, and metadata. Prose is always the serif.", "section": "typography" },
+      { "name": "The Tight-Masthead Rule", "body": "Display/headline weight is 800 with -0.5px tracking and text-wrap: balance. Never set the masthead below 800 or looser than -0.5px.", "section": "typography" },
+      { "name": "The Flat Press Rule", "body": "No box-shadow, no backdrop-filter, no glow — ever. If an element needs to stand apart, give it a rule or give it space.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the system monochrome — warm Paper (#f4f1ea) and near-black Ink (#111). Emphasis via weight, scale, and ink/paper inversion.",
+      "Do use hard corners (radius 0) and a 2px ink rule as the one assertive gesture on any element.",
+      "Do reserve JetBrains Mono for counts, ranks, nav, tags, and metadata; set all prose in Fraunces.",
+      "Do keep secondary text at Caption Gray (#555) or darker — it holds ~6.7:1 on Paper.",
+      "Do convey depth with rules and spacing; keep every surface flat.",
+      "Do give every interactive control a visible focus state and a prefers-reduced-motion fallback.",
+      "Do treat the TODAY'S TOP / FEATURED tag as the one sanctioned tracked-uppercase label, used on the featured item only."
+    ],
+    "donts": [
+      "Don't introduce the generic AI-SaaS look: no purple/indigo gradients, no glassy cards, no gradient text, no identical icon-card grids, no tracked-uppercase eyebrow above every section.",
+      "Don't drift toward a corporate dashboard: no sidebar + data-table + flat-gray enterprise chrome.",
+      "Don't reach for crypto/Web3 maximalism: no neon-on-black, no glows, no aggressive animation.",
+      "Don't add box-shadow, backdrop-filter, or blur — flat by doctrine.",
+      "Don't round corners. Radius is 0 everywhere.",
+      "Don't use a border-left/border-right color stripe as an accent — borders are full 2px ink rules or nothing.",
+      "Don't lighten secondary text past #555 for elegance.",
+      "Don't set prose in monospace or the masthead below 800 weight."
+    ]
+  }
+}
