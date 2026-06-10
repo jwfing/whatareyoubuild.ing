@@ -78,7 +78,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <PageView productId={p.id} />
       <article className="mx-auto max-w-2xl px-5 pt-6">
         <div className="rule flex gap-4 p-4">
-          <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] object-cover" />
+          <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] shrink-0 bg-[var(--paper-2)] object-contain" />
           <div className="flex-1">
             <h1 className="masthead text-3xl">{p.name}</h1>
             <p className="text-[var(--muted)]">{p.tagline}</p>
@@ -96,7 +96,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
       </article>
       {p.screenshots.length > 0 && (
-        <section className="mx-auto mt-6 max-w-5xl px-5" aria-label="Screenshots">
+        <section className="mx-auto mt-6 max-w-2xl px-5" aria-label="Screenshots">
           <ScreenshotGallery screenshots={p.screenshots} productName={p.name} />
         </section>
       )}
