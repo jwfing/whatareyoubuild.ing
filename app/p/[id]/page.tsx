@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import VoteButton from '@/components/VoteButton'
 import ShareButton from '@/components/ShareButton'
 import PageView from '@/components/PageView'
+import CommentsSection, { type CommentItem } from '@/components/CommentsSection'
 import { getServerClient, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
 
@@ -22,6 +23,33 @@ function safeHttpUrl(raw: string | null): string | null {
 async function getProduct(id: string): Promise<Product | null> {
   const { data } = await getServerClient().database.from('products').select().eq('id', id).maybeSingle()
   return (data as Product) ?? null
+}
+
+async function getComments(productId: string): Promise<CommentItem[]> {
+  const insforge = getServerClient()
+  const { data } = await insforge.database
+    .from('comments').select().eq('product_id', productId).order('created_at', { ascending: false })
+  const rows = (data ?? []) as { id: string; user_id: string; body: string; created_at: string }[]
+  // Resolve display names from the trusted profile (never client-supplied).
+  const uids = [...new Set(rows.map((r) => r.user_id))]
+  const namePairs = await Promise.all(
+    uids.map(async (uid) => {
+      try {
+        const { data: prof } = await insforge.auth.getProfile(uid)
+        return [uid, (prof as { name?: string } | null)?.name || 'builder'] as const
+      } catch {
+        return [uid, 'builder'] as const
+      }
+    }),
+  )
+  const names = new Map(namePairs)
+  return rows.map((r) => ({
+    id: r.id,
+    userId: r.user_id,
+    name: names.get(r.user_id) ?? 'builder',
+    body: r.body,
+    createdAt: r.created_at,
+  }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -42,6 +70,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   if (!p) notFound()
   const safeLink = safeHttpUrl(p.link)
   const user = await getServerUser()
+  const comments = await getComments(p.id)
   return (
     <main>
       <Header user={user} />
@@ -65,6 +94,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
         </div>
         {p.description && <div className="mt-4 whitespace-pre-wrap">{p.description}</div>}
+        <CommentsSection
+          productId={p.id}
+          productAuthorId={p.author_id}
+          userId={user?.id ?? null}
+          currentUserName={user?.name ?? null}
+          initial={comments}
+        />
       </article>
     </main>
   )
