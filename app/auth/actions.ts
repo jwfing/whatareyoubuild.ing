@@ -30,3 +30,10 @@ export async function signInGoogle() {
 export async function signInGitHub() {
   await initiateOAuth('github')
 }
+
+export async function signOutAction() {
+  const cookieStore = await cookies()
+  cookieStore.delete('insforge_access_token')
+  cookieStore.delete('insforge_refresh_token')
+  redirect('/')
+}

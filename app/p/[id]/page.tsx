@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
@@ -52,8 +53,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <h1 className="masthead text-3xl">{p.name}</h1>
             <p className="text-[var(--muted)]">{p.tagline}</p>
             {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 inline-block text-sm underline">Visit →</a>}
-            <div className="mt-3">
+            <div className="mt-3 flex items-center gap-3">
               <ShareButton productId={p.id} />
+              {user?.id === p.author_id && (
+                <Link href={`/p/${p.id}/edit`} className="rule mono px-3 py-1 text-xs transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">
+                  Edit
+                </Link>
+              )}
             </div>
           </div>
           <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
