@@ -2,13 +2,15 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { getBrowserClient, type Product } from '@/lib/insforge'
+import { getBrowserClient, type Product, type Screenshot } from '@/lib/insforge'
+import ScreenshotManager from './ScreenshotManager'
 
 export default function EditProductForm({ product }: { product: Product }) {
   const router = useRouter()
   const insforge = getBrowserClient()
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [shots, setShots] = useState<Screenshot[]>(product.screenshots ?? [])
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -44,6 +46,7 @@ export default function EditProductForm({ product }: { product: Product }) {
       image_key = up.data.key
     }
 
+    // Screenshots were uploaded as they were added (see ScreenshotManager).
     const { error } = await insforge.database.from('products').update({
       name,
       tagline,
@@ -51,6 +54,7 @@ export default function EditProductForm({ product }: { product: Product }) {
       description: String(form.get('description') || '').trim() || null,
       image_url,
       image_key,
+      screenshots: shots,
     }).eq('id', product.id)
 
     if (error) {
@@ -79,6 +83,9 @@ export default function EditProductForm({ product }: { product: Product }) {
           <p className="mono mt-1 text-xs text-[var(--muted)]">Leave blank to keep the current image.</p>
         </div>
       </div>
+
+      <ScreenshotManager value={shots} onChange={setShots} />
+
       {err && <p className="mono text-sm text-red-700">{err}</p>}
       <div className="flex items-center gap-3">
         <button disabled={busy} className="rule mono px-4 py-2 transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)] disabled:opacity-60">

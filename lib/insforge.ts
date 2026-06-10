@@ -29,4 +29,7 @@ export type Product = {
   author_id: string
   vote_count: number
   created_at: string
+  screenshots: Screenshot[]
 }
+
+export type Screenshot = { url: string; key: string }

@@ -7,6 +7,7 @@ import VoteButton from '@/components/VoteButton'
 import ShareButton from '@/components/ShareButton'
 import PageView from '@/components/PageView'
 import CommentsSection, { type CommentItem } from '@/components/CommentsSection'
+import ScreenshotGallery from '@/components/ScreenshotGallery'
 import { getServerClient, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
 
@@ -75,7 +76,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     <main>
       <Header user={user} />
       <PageView productId={p.id} />
-      <article className="mx-auto max-w-2xl px-5 py-6">
+      <article className="mx-auto max-w-2xl px-5 pt-6">
         <div className="rule flex gap-4 p-4">
           <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] object-cover" />
           <div className="flex-1">
@@ -93,7 +94,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           </div>
           <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
         </div>
-        {p.description && <div className="mt-4 whitespace-pre-wrap">{p.description}</div>}
+      </article>
+      {p.screenshots.length > 0 && (
+        <section className="mx-auto mt-6 max-w-5xl px-5" aria-label="Screenshots">
+          <ScreenshotGallery screenshots={p.screenshots} productName={p.name} />
+        </section>
+      )}
+      <article className="mx-auto max-w-2xl px-5 py-6">
+        {p.description && <div className="whitespace-pre-wrap">{p.description}</div>}
         <CommentsSection
           productId={p.id}
           productAuthorId={p.author_id}
