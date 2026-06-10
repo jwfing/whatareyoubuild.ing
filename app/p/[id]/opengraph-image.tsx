@@ -23,7 +23,7 @@ export default async function OG({ params }: { params: Promise<{ id: string }> }
             <div style={{ fontSize: 88, fontWeight: 800, lineHeight: 1, marginTop: 8 }}>{name}</div>
             <div style={{ fontSize: 32, color: '#555', marginTop: 16 }}>{tagline}</div>
           </div>
-          <div style={{ fontSize: 22, color: '#666' }}>whatareyoubuilding</div>
+          <div style={{ fontSize: 22, color: '#666' }}>whatareyoubuild.ing</div>
         </div>
         <div style={{ display: 'flex', flex: 0.8, background: '#111', alignItems: 'flex-end', justifyContent: 'center', position: 'relative' }}>
           {image ? (
