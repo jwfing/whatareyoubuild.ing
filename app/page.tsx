@@ -11,7 +11,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
     <main>
       <Header user={user} />
       {error ? <ErrorBanner code={error} /> : null}
-      <Feed sort={s} />
+      <Feed sort={s} userId={user?.id ?? null} />
     </main>
   )
 }

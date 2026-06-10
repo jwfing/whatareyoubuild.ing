@@ -1,17 +1,40 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Product } from '@/lib/insforge'
+import VoteButton from './VoteButton'
 
-export default function ProductRow({ p, rank }: { p: Product; rank: number }) {
+export default function ProductRow({
+  p,
+  rank,
+  userId,
+  index = 0,
+}: {
+  p: Product
+  rank: number
+  userId: string | null
+  index?: number
+}) {
   return (
-    <Link href={`/p/${p.id}`} className="hairline flex items-center gap-3 py-2.5">
-      <span className="mono w-6 text-right text-sm">{rank}</span>
-      <Image src={p.image_url} alt="" width={40} height={40} className="rule h-10 w-10 object-cover" />
-      <span className="flex-1">
-        <b>{p.name}</b>
-        <span className="block text-sm text-[var(--muted)]">{p.tagline}</span>
+    <li
+      className="feed-row feed-rise hairline relative flex items-center gap-4 px-2 py-3"
+      style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+    >
+      <span className="mono w-6 shrink-0 text-right text-sm text-[var(--muted)]">{rank}</span>
+      <Image
+        src={p.image_url}
+        alt=""
+        width={64}
+        height={64}
+        className="feed-thumb rule h-16 w-16 shrink-0 object-cover"
+      />
+      <span className="min-w-0 flex-1">
+        <b className="block truncate">{p.name}</b>
+        <span className="block truncate text-sm text-[var(--muted)]">{p.tagline}</span>
       </span>
-      <span className="rule mono px-2 py-1 text-center text-xs">▲<br />{p.vote_count}</span>
-    </Link>
+      <VoteButton productId={p.id} initialCount={p.vote_count} userId={userId} size="sm" />
+      {/* Stretched link: the whole row navigates to the detail page; the vote
+          button (z-10) stays independently tappable above this overlay. */}
+      <Link href={`/p/${p.id}`} aria-label={p.name} className="absolute inset-0 z-0" />
+    </li>
   )
 }

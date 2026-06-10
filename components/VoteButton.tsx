@@ -1,19 +1,36 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { getBrowserClient } from '@/lib/insforge'
 import { toggleVote } from '@/lib/vote'
 import { track } from '@/lib/posthog'
-import AuthButtons from './AuthButtons'
 
-export default function VoteButton({ productId, initialCount, userId }: { productId: string; initialCount: number; userId: string | null }) {
+type Size = 'sm' | 'lg'
+
+const SIZING: Record<Size, { box: string; tri: number; count: string }> = {
+  sm: { box: 'min-w-[2.75rem] px-2 py-1.5', tri: 6, count: 'text-sm' },
+  lg: { box: 'px-4 py-3', tri: 9, count: 'text-base' },
+}
+
+export default function VoteButton({
+  productId,
+  initialCount,
+  userId,
+  size = 'lg',
+}: {
+  productId: string
+  initialCount: number
+  userId: string | null
+  size?: Size
+}) {
+  const router = useRouter()
   const insforge = getBrowserClient()
   const [state, setState] = useState({ voted: false, count: initialCount })
-  const [needAuth, setNeedAuth] = useState(false)
   const [pending, setPending] = useState(false)
+  const s = SIZING[size]
 
   // "Did I already vote?" — public read (votes_select_all), keyed on the
-  // server-provided userId. No getCurrentUser (that triggers a cross-domain
-  // backend refresh in this SSR setup).
+  // server-provided userId. No getCurrentUser (cross-domain backend refresh).
   useEffect(() => {
     if (!userId) return
     let cancelled = false
@@ -21,17 +38,20 @@ export default function VoteButton({ productId, initialCount, userId }: { produc
       try {
         const { data: rows } = await insforge.database
           .from('votes').select('id').eq('product_id', productId).eq('user_id', userId)
-        if (!cancelled) setState(s => ({ ...s, voted: !!(rows && rows.length) }))
+        if (!cancelled) setState((v) => ({ ...v, voted: !!(rows && rows.length) }))
       } catch {
-        /* ignore — vote state stays unvoted */
+        /* leave as unvoted */
       }
     })()
     return () => { cancelled = true }
   }, [productId, userId])
 
-  async function onClick() {
+  async function onClick(e: React.MouseEvent) {
+    // The row navigates via a stretched-link overlay; the vote must not.
+    e.preventDefault()
+    e.stopPropagation()
     if (pending) return
-    if (!userId) { setNeedAuth(true); return }
+    if (!userId) { router.push('/signin'); return }
     setPending(true)
     const prev = state
     const next = toggleVote(state)
@@ -51,11 +71,27 @@ export default function VoteButton({ productId, initialCount, userId }: { produc
   }
 
   return (
-    <div>
-      <button onClick={onClick} disabled={pending} aria-label={state.voted ? 'Remove your vote' : 'Upvote'} aria-pressed={state.voted} className={`rule mono px-4 py-3 text-center ${state.voted ? 'bg-[var(--ink)] text-[var(--paper)]' : ''}`}>
-        ▲<br /><b>{state.count}</b>
-      </button>
-      {needAuth && <div className="mt-2"><p className="mono mb-1 text-xs">Sign in to vote:</p><AuthButtons /></div>}
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={pending}
+      aria-label={state.voted ? 'Remove your vote' : 'Upvote'}
+      aria-pressed={state.voted}
+      className={`relative z-10 rule mono ${s.box} inline-flex flex-col items-center justify-center gap-1 leading-none transition-colors duration-150 disabled:opacity-60 ${
+        state.voted ? 'bg-[var(--ink)] text-[var(--paper)]' : 'hover:bg-[var(--paper-2)]'
+      }`}
+    >
+      <span
+        aria-hidden
+        style={{
+          width: 0,
+          height: 0,
+          borderLeft: `${s.tri}px solid transparent`,
+          borderRight: `${s.tri}px solid transparent`,
+          borderBottom: `${Math.round(s.tri * 1.5)}px solid currentColor`,
+        }}
+      />
+      <b className={s.count}>{state.count}</b>
+    </button>
   )
 }
