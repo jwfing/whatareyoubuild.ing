@@ -29,10 +29,13 @@ export default function UserMenu({ label }: { label: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="rule mono inline-flex max-w-[10rem] items-center gap-1 px-2 py-1 text-xs transition-colors hover:bg-[var(--paper-2)]"
+        // No border around a person's name: a black frame around a name reads
+        // as a memorial in some cultures (e.g. China). Affordance comes from the
+        // caret + hover/focus highlight instead.
+        className="mono inline-flex max-w-[10rem] items-center gap-1 px-2 py-1 text-xs transition-colors hover:bg-[var(--paper-2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)]"
       >
         <span className="truncate">{label}</span>
-        <span aria-hidden className="text-[0.6rem]">▾</span>
+        <span aria-hidden className="text-[0.6rem] text-[var(--muted)]">▾</span>
       </button>
       {open && (
         <div
