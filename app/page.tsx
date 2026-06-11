@@ -1,6 +1,7 @@
 import Header from '@/components/Header'
 import Feed from '@/components/Feed'
 import ErrorBanner from '@/components/ErrorBanner'
+import Footer from '@/components/Footer'
 import { getServerUser } from '@/lib/auth-server'
 import { SITE_NAME, SITE_URL, SITE_TAGLINE } from '@/lib/site'
 
@@ -23,6 +24,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
       <Header user={user} />
       {error ? <ErrorBanner code={error} /> : null}
       <Feed sort={s} userId={user?.id ?? null} />
+      <Footer />
     </main>
   )
 }

@@ -1,0 +1,15 @@
+import Link from 'next/link'
+
+export default function Footer() {
+  return (
+    <footer className="rule mt-12 border-x-0 border-b-0 px-5 py-6">
+      <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
+        <Link href="/" className="masthead text-sm">WHAT ARE YOU BUILDING</Link>
+        <nav className="mono flex gap-4 text-xs text-[var(--muted)]">
+          <Link href="/about" className="transition-colors hover:text-[var(--ink)]">About</Link>
+          <Link href="/submit" className="transition-colors hover:text-[var(--ink)]">Submit</Link>
+        </nav>
+      </div>
+    </footer>
+  )
+}

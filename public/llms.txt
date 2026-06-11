@@ -9,6 +9,7 @@
 
 ## Key pages
 - Home / feed: https://www.whatareyoubuild.ing/
+- About (what it is, how it works, FAQ): https://www.whatareyoubuild.ing/about
 - A product: https://www.whatareyoubuild.ing/p/<product-id>
 - Submit your product: https://www.whatareyoubuild.ing/submit
 
