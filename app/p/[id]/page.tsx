@@ -90,46 +90,71 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       { '@type': 'InteractionCounter', interactionType: 'https://schema.org/CommentAction', userInteractionCount: comments.length },
     ],
   }
+  const isOwner = user?.id === p.author_id
+
+  const heroCard = (
+    <div className="rule flex gap-4 p-4">
+      <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] shrink-0 bg-[var(--paper-2)] object-contain" />
+      <div className="flex-1">
+        <h1 className="masthead text-3xl">{p.name}</h1>
+        <p className="text-[var(--muted)]">{p.tagline}</p>
+        {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 inline-block text-sm underline">Visit →</a>}
+        <div className="mt-3 flex items-center gap-3">
+          <ShareButton productId={p.id} />
+          {isOwner && (
+            <Link href={`/p/${p.id}/edit`} className="rule mono px-3 py-1 text-xs transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">
+              Edit
+            </Link>
+          )}
+        </div>
+      </div>
+      <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
+    </div>
+  )
+
+  const galleryEl =
+    p.screenshots.length > 0 ? <ScreenshotGallery screenshots={p.screenshots} productName={p.name} /> : null
+
+  const bodyEl = (
+    <>
+      {p.description && <div className="whitespace-pre-wrap">{p.description}</div>}
+      <CommentsSection
+        productId={p.id}
+        productAuthorId={p.author_id}
+        userId={user?.id ?? null}
+        currentUserName={user?.name ?? null}
+        initial={comments}
+      />
+    </>
+  )
+
   return (
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
       <Header user={user} />
       <PageView productId={p.id} />
-      <article className="mx-auto max-w-2xl px-5 pt-6">
-        <div className="rule flex gap-4 p-4">
-          <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] shrink-0 bg-[var(--paper-2)] object-contain" />
-          <div className="flex-1">
-            <h1 className="masthead text-3xl">{p.name}</h1>
-            <p className="text-[var(--muted)]">{p.tagline}</p>
-            {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 inline-block text-sm underline">Visit →</a>}
-            <div className="mt-3 flex items-center gap-3">
-              <ShareButton productId={p.id} />
-              {user?.id === p.author_id && (
-                <Link href={`/p/${p.id}/edit`} className="rule mono px-3 py-1 text-xs transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">
-                  Edit
-                </Link>
-              )}
+      {isOwner ? (
+        // Owner view: report rides alongside the content — a sticky right rail on
+        // desktop, lifted right under the hero on mobile (above the comments).
+        <div className="mx-auto max-w-5xl px-5 pt-6 pb-12">
+          {heroCard}
+          <div className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
+            <aside className="order-first lg:order-2 lg:sticky lg:top-4 lg:w-[360px] lg:shrink-0">
+              <GeoReportPanel productId={p.id} />
+            </aside>
+            <div className="min-w-0 lg:order-1 lg:flex-1">
+              {galleryEl && <section className="mb-6" aria-label="Screenshots">{galleryEl}</section>}
+              {bodyEl}
             </div>
           </div>
-          <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
         </div>
-      </article>
-      {p.screenshots.length > 0 && (
-        <section className="mx-auto mt-6 max-w-2xl px-5" aria-label="Screenshots">
-          <ScreenshotGallery screenshots={p.screenshots} productName={p.name} />
-        </section>
+      ) : (
+        <div className="mx-auto max-w-2xl px-5 pt-6 pb-10">
+          {heroCard}
+          {galleryEl && <section className="mt-6" aria-label="Screenshots">{galleryEl}</section>}
+          <div className="mt-6">{bodyEl}</div>
+        </div>
       )}
-      <article className="mx-auto max-w-2xl px-5 py-6">
-        {p.description && <div className="whitespace-pre-wrap">{p.description}</div>}
-        <CommentsSection
-          productId={p.id}
-          productAuthorId={p.author_id}
-          userId={user?.id ?? null}
-          currentUserName={user?.name ?? null}
-          initial={comments}
-        />
-        {user?.id === p.author_id && <GeoReportPanel productId={p.id} />}
-      </article>
     </main>
   )
 }

@@ -110,7 +110,7 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
   const fp = r?.footprint
 
   return (
-    <section className="mt-10">
+    <section>
       <div className="rule bg-[var(--report)]">
         {/* Reverse-printed header bar — marks this as a distinct, private module */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-[var(--ink)] px-4 py-3 text-[var(--paper)] sm:px-6">
@@ -211,7 +211,7 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                 <p className="text-sm text-[var(--muted)]">{fp?.note ?? 'Could not measure AI footprint this run.'}</p>
               ) : (
                 <>
-                  <dl className="grid grid-cols-2 divide-x divide-y divide-[var(--line)] border border-[var(--ink)] bg-[var(--paper)] sm:grid-cols-4 sm:divide-y-0">
+                  <dl className="grid grid-cols-2 divide-x divide-y divide-[var(--line)] border border-[var(--ink)] bg-[var(--paper)]">
                     <Metric n={`${fp.visibility.score}`} unit="/100" label="Visibility" detail={fp.visibility.detail} />
                     <Metric n={`${fp.citations.count}`} unit={`/${fp.citations.probes}`} label="Citations" detail={fp.citations.detail} />
                     <Metric
