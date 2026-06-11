@@ -8,6 +8,7 @@ import ShareButton from '@/components/ShareButton'
 import PageView from '@/components/PageView'
 import CommentsSection, { type CommentItem } from '@/components/CommentsSection'
 import ScreenshotGallery from '@/components/ScreenshotGallery'
+import GeoReportPanel from '@/components/GeoReportPanel'
 import { getServerClient, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
 import { SITE_URL } from '@/lib/site'
@@ -127,6 +128,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           currentUserName={user?.name ?? null}
           initial={comments}
         />
+        {user?.id === p.author_id && <GeoReportPanel productId={p.id} />}
       </article>
     </main>
   )

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Header'
+import GeoSummary from '@/components/GeoSummary'
 import { getServerClient, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
 
@@ -34,15 +35,18 @@ export default async function MyProductsPage() {
         ) : (
           <ol className="mt-4">
             {products.map((p) => (
-              <li key={p.id} className="hairline flex items-center gap-4 px-2 py-3">
-                <Image src={p.image_url} alt="" width={56} height={56} className="rule h-14 w-14 shrink-0 object-cover" />
-                <div className="min-w-0 flex-1">
-                  <b className="block truncate">{p.name}</b>
-                  <span className="block truncate text-sm text-[var(--muted)]">{p.tagline}</span>
+              <li key={p.id} className="hairline px-2 py-3">
+                <div className="flex items-center gap-4">
+                  <Image src={p.image_url} alt="" width={56} height={56} className="rule h-14 w-14 shrink-0 object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <b className="block truncate">{p.name}</b>
+                    <span className="block truncate text-sm text-[var(--muted)]">{p.tagline}</span>
+                  </div>
+                  <span className="mono shrink-0 text-xs text-[var(--muted)]">▲ {p.vote_count}</span>
+                  <Link href={`/p/${p.id}`} className="mono shrink-0 text-xs underline">View</Link>
+                  <Link href={`/p/${p.id}/edit`} className="rule mono shrink-0 px-3 py-1 text-xs transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">Edit</Link>
                 </div>
-                <span className="mono shrink-0 text-xs text-[var(--muted)]">▲ {p.vote_count}</span>
-                <Link href={`/p/${p.id}`} className="mono shrink-0 text-xs underline">View</Link>
-                <Link href={`/p/${p.id}/edit`} className="rule mono shrink-0 px-3 py-1 text-xs transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">Edit</Link>
+                <GeoSummary productId={p.id} />
               </li>
             ))}
           </ol>
