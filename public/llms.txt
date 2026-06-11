@@ -10,6 +10,7 @@
 ## Key pages
 - Home / feed: https://www.whatareyoubuild.ing/
 - About (what it is, how it works, FAQ): https://www.whatareyoubuild.ing/about
+- How HOT is calculated (the ranking formula, with worked examples): https://www.whatareyoubuild.ing/how-hot-works
 - A product: https://www.whatareyoubuild.ing/p/<product-id>
 - Submit your product: https://www.whatareyoubuild.ing/submit
 

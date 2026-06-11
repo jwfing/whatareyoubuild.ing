@@ -7,6 +7,7 @@ export default function Footer() {
         <Link href="/" className="masthead text-sm">WHAT ARE YOU BUILDING</Link>
         <nav className="mono flex gap-4 text-xs text-[var(--muted)]">
           <Link href="/about" className="transition-colors hover:text-[var(--ink)]">About</Link>
+          <Link href="/how-hot-works" className="transition-colors hover:text-[var(--ink)]">How HOT works</Link>
           <Link href="/submit" className="transition-colors hover:text-[var(--ink)]">Submit</Link>
         </nav>
       </div>
