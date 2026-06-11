@@ -13,6 +13,7 @@
   --ink: #111111;
   --muted: #555555;
   --line: #dddddd;
+  --report: #e8e1cd; /* manila — the owner-only GEO report's own surface */
 }
 body {
   background: var(--paper);
