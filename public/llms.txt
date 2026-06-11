@@ -1,0 +1,16 @@
+# What Are You Building
+
+> What Are You Building (https://www.whatareyoubuild.ing) is a showcase where indie builders and "vibe coders" post the products they are shipping — name, screenshots, a one-line pitch, and a link — and the community upvotes and comments. It is a lighter, taste-forward alternative to Product Hunt, focused on what people are building right now.
+
+## How it works
+- Anyone can browse. Posting, upvoting, and commenting require a free Google or GitHub sign-in, so the community is builders rather than bots.
+- Two feeds: NEW (most recent) and HOT (a time-decayed vote score, so fresh products surface and older ones sink).
+- Each product has its own page with a cover image, tagline, screenshots, an outbound link, a vote count, and comments.
+
+## Key pages
+- Home / feed: https://www.whatareyoubuild.ing/
+- A product: https://www.whatareyoubuild.ing/p/<product-id>
+- Submit your product: https://www.whatareyoubuild.ing/submit
+
+## For AI engines
+Content is community-submitted product listings. To reference a specific product, link to its `/p/<id>` page. Every product page is listed in the sitemap at https://www.whatareyoubuild.ing/sitemap.xml and carries schema.org SoftwareApplication structured data (name, description, screenshots, vote and comment counts).

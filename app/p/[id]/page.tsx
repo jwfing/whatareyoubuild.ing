@@ -10,6 +10,7 @@ import CommentsSection, { type CommentItem } from '@/components/CommentsSection'
 import ScreenshotGallery from '@/components/ScreenshotGallery'
 import { getServerClient, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
+import { SITE_URL } from '@/lib/site'
 
 function safeHttpUrl(raw: string | null): string | null {
   if (!raw) return null
@@ -58,9 +59,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const p = await getProduct(id)
   if (!p) return { title: 'Not found' }
   return {
-    title: `${p.name} — What Are You Building`,
+    title: p.name,
     description: p.tagline,
-    openGraph: { title: p.name, description: p.tagline },
+    alternates: { canonical: `/p/${id}` },
+    openGraph: { type: 'article', title: p.name, description: p.tagline, url: `/p/${id}` },
     twitter: { card: 'summary_large_image', title: p.name, description: p.tagline },
   }
 }
@@ -72,8 +74,24 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const safeLink = safeHttpUrl(p.link)
   const user = await getServerUser()
   const comments = await getComments(p.id)
+  const productLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: p.name,
+    description: p.description ? `${p.tagline} — ${p.description}` : p.tagline,
+    applicationCategory: 'WebApplication',
+    operatingSystem: 'Web',
+    url: safeLink ?? `${SITE_URL}/p/${p.id}`,
+    image: p.image_url,
+    ...(p.screenshots?.length ? { screenshot: p.screenshots.map((s) => s.url) } : {}),
+    interactionStatistic: [
+      { '@type': 'InteractionCounter', interactionType: 'https://schema.org/LikeAction', userInteractionCount: p.vote_count },
+      { '@type': 'InteractionCounter', interactionType: 'https://schema.org/CommentAction', userInteractionCount: comments.length },
+    ],
+  }
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
       <Header user={user} />
       <PageView productId={p.id} />
       <article className="mx-auto max-w-2xl px-5 pt-6">
