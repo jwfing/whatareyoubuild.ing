@@ -176,15 +176,16 @@ export function analyzeOnPage(page: PageDoc): HealthLayer {
       : 'Add one H1 that states plainly what the product is.',
   )
 
-  // Canonical
+  // Canonical — worth having, but a missing canonical (especially on a homepage)
+  // is a tune-up, not urgent: engines usually resolve the canonical URL anyway.
   const canonical = $('link[rel="canonical"]').attr('href')
   add(
     'canonical',
     'Canonical URL',
     !!canonical,
-    false,
+    true,
     canonical || 'No canonical link.',
-    'Add <link rel="canonical"> so engines consolidate signals onto one URL.',
+    'Add <link rel="canonical"> so engines consolidate ranking signals onto one URL.',
   )
 
   // Language
