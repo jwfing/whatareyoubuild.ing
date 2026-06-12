@@ -222,6 +222,25 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                     />
                     <Metric n={`${fp.shareOfVoice.score}`} unit="%" label="Share of Voice" detail={fp.shareOfVoice.detail} />
                   </dl>
+                  {fp.engines.length > 1 && (
+                    <div className="mt-3">
+                      <div className="mono mb-1.5 text-[10px] tracking-[0.12em] text-[var(--muted)]">VISIBILITY BY ENGINE</div>
+                      <ul className="space-y-1.5">
+                        {fp.engines.map((e) => (
+                          <li key={e.id} className="flex items-center gap-2 text-xs">
+                            <span className="w-20 shrink-0 truncate">{e.label}</span>
+                            <span className="h-1.5 flex-1 bg-[var(--line)]">
+                              <span className="block h-full bg-[var(--ink)]" style={{ width: `${e.visibility}%` }} />
+                            </span>
+                            <span className="mono w-16 shrink-0 text-right tabular-nums">
+                              {e.visibility}
+                              <span className="text-[var(--muted)]"> ({e.mentions}/{e.prompts})</span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   {fp.category && (
                     <p className="mt-3 text-xs text-[var(--muted)]">
                       Category: <span className="text-[var(--ink)]">{fp.category}</span>

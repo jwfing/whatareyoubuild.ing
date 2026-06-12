@@ -26,6 +26,7 @@ export type HealthLayer = {
 export type Sentiment = 'positive' | 'neutral' | 'negative' | 'unknown'
 
 export type ProbeResult = {
+  engine: string // which web engine produced this answer
   prompt: string
   answer: string
   mentioned: boolean
@@ -33,9 +34,19 @@ export type ProbeResult = {
   citations: string[]
 }
 
+// Per-engine breakdown of the visibility probes.
+export type EngineResult = {
+  id: string
+  label: string
+  prompts: number
+  mentions: number
+  visibility: number // 0–100 = mentions / prompts for this engine
+  citations: number // answers from this engine that cited the product
+}
+
 export type FootprintLayer = {
   score: number // 0–100 blended AI footprint
-  engine: string // model id used for the web probes
+  engines: EngineResult[] // per-engine breakdown of the probes
   category: string
   competitors: string[]
   prompts: string[]

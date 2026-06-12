@@ -8,7 +8,7 @@ import { buildCommentary } from './commentary'
 import type { GeoReport } from './types'
 
 const METHOD =
-  'On-page checks read your live HTML. The AI-footprint metrics are an approximation: we query a web-grounded AI model with category-relevant prompts via OpenRouter — not a scrape of the live ChatGPT / Perplexity interfaces, which can differ. New products usually start near zero; re-run over time to watch it climb.'
+  'On-page checks read your live HTML. The AI-footprint metrics are an approximation: we query three web-grounded AI engines (Perplexity, ChatGPT, and Gemini) with category-relevant prompts via OpenRouter — not a scrape of their live consumer interfaces, which can differ. New products usually start near zero; re-run over time to watch it climb.'
 
 function safeOrigin(url: string): string | null {
   try {

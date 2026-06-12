@@ -4,7 +4,7 @@
 // Voice from the answers. New products read near zero; that is the honest
 // baseline, and the saved history is what makes it useful.
 import 'server-only'
-import { chat, parseJson, GEO_FAST_MODEL, GEO_WEB_MODEL, aiConfigured } from './openrouter'
+import { chat, parseJson, GEO_FAST_MODEL, GEO_WEB_ENGINES, aiConfigured } from './openrouter'
 import type { FootprintLayer, ProbeResult, Sentiment } from './types'
 
 type Derived = { category: string; prompts: string[]; competitors: string[] }
@@ -37,7 +37,7 @@ function clamp(n: number, a: number, b: number): number {
 function emptyFootprint(note: string | null): FootprintLayer {
   return {
     score: 0,
-    engine: GEO_WEB_MODEL,
+    engines: [],
     category: '',
     competitors: [],
     prompts: [],
@@ -83,16 +83,16 @@ ${input.pageText ? `Website text (excerpt): ${input.pageText.slice(0, 1200)}` : 
   }
 }
 
-async function probeOne(prompt: string, name: string, brandHost: string | null): Promise<ProbeResult> {
+async function probeOne(engineId: string, prompt: string, name: string, brandHost: string | null): Promise<ProbeResult> {
   try {
-    const { content, citations } = await chat({ model: GEO_WEB_MODEL, user: prompt, maxTokens: 600, timeoutMs: 35000 })
+    const { content, citations } = await chat({ model: engineId, user: prompt, maxTokens: 600, timeoutMs: 35000 })
     const mentioned = mkRe(name).test(content)
     const cited = brandHost
       ? citations.some((u) => u.toLowerCase().includes(brandHost)) || content.toLowerCase().includes(brandHost)
       : false
-    return { prompt, answer: content, mentioned, cited, citations }
+    return { engine: engineId, prompt, answer: content, mentioned, cited, citations }
   } catch {
-    return { prompt, answer: '', mentioned: false, cited: false, citations: [] }
+    return { engine: engineId, prompt, answer: '', mentioned: false, cited: false, citations: [] }
   }
 }
 
@@ -137,7 +137,11 @@ export async function computeFootprint(input: {
   }
 
   const brandHost = host(input.link)
-  const probes = await Promise.all(derived.prompts.map((p) => probeOne(p, input.name, brandHost)))
+  // Probe every (engine × prompt) pair concurrently.
+  const engines = GEO_WEB_ENGINES
+  const probes = await Promise.all(
+    engines.flatMap((e) => derived.prompts.map((p) => probeOne(e.id, p, input.name, brandHost))),
+  )
 
   const fp = emptyFootprint(null)
   fp.available = true
@@ -150,11 +154,25 @@ export async function computeFootprint(input: {
   const mentions = probes.filter((p) => p.mentioned).length
   const cited = probes.filter((p) => p.cited).length
 
+  // Per-engine breakdown.
+  fp.engines = engines.map((e) => {
+    const ep = probes.filter((p) => p.engine === e.id)
+    const m = ep.filter((p) => p.mentioned).length
+    return {
+      id: e.id,
+      label: e.label,
+      prompts: ep.length,
+      mentions: m,
+      visibility: ep.length ? Math.round((m / ep.length) * 100) : 0,
+      citations: ep.filter((p) => p.cited).length,
+    }
+  })
+
   fp.visibility = {
     score: Math.round((mentions / N) * 100),
     mentions,
     probes: N,
-    detail: `Mentioned in ${mentions} of ${N} AI answers to category questions.`,
+    detail: `Mentioned in ${mentions} of ${N} answers across ${engines.length} AI engines.`,
   }
   fp.citations = {
     score: Math.round((cited / N) * 100),
@@ -184,7 +202,10 @@ export async function computeFootprint(input: {
 
   fp.sentiment =
     mentions > 0
-      ? await classifySentiment(input.name, probes.filter((p) => p.mentioned).map((p) => p.answer))
+      ? await classifySentiment(
+          input.name,
+          probes.filter((p) => p.mentioned).map((p) => p.answer).slice(0, 6),
+        )
       : { index: 0, label: 'unknown', detail: 'Not mentioned yet — nothing to measure.' }
 
   // Blended footprint: visibility leads, citations + share of voice support.

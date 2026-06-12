@@ -7,8 +7,29 @@ const KEY = process.env.OPENROUTER_API_KEY
 
 // A cheap, fast model for derive / classify / commentary (must support JSON output).
 export const GEO_FAST_MODEL = process.env.GEO_FAST_MODEL || 'openai/gpt-4o-mini'
-// A web-grounded model for the visibility probes (returns `citations`).
-export const GEO_WEB_MODEL = process.env.GEO_WEB_MODEL || 'perplexity/sonar'
+
+// Web-grounded engines for the visibility probes (each returns citations).
+// Mirrors the three consumer answer engines: Perplexity, ChatGPT, Gemini.
+// Override with GEO_WEB_ENGINES="id|Label,id|Label,…".
+export type WebEngine = { id: string; label: string }
+function parseEngines(s?: string): WebEngine[] | null {
+  if (!s) return null
+  const items = s
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .map((pair) => {
+      const [id, label] = pair.split('|').map((y) => y.trim())
+      return id ? { id, label: label || id } : null
+    })
+    .filter((e): e is WebEngine => e !== null)
+  return items.length ? items : null
+}
+export const GEO_WEB_ENGINES: WebEngine[] = parseEngines(process.env.GEO_WEB_ENGINES) ?? [
+  { id: 'perplexity/sonar', label: 'Perplexity' },
+  { id: 'openai/gpt-4o-mini:online', label: 'ChatGPT' },
+  { id: 'google/gemini-2.5-flash:online', label: 'Gemini' },
+]
 
 export function aiConfigured(): boolean {
   return !!KEY
