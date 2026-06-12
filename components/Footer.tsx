@@ -11,6 +11,19 @@ export default function Footer() {
           <Link href="/submit" className="transition-colors hover:text-[var(--ink)]">Submit</Link>
         </nav>
       </div>
+      <div className="mx-auto mt-4 max-w-2xl">
+        <p className="mono text-xs text-[var(--muted)]">
+          Powered by{' '}
+          <a
+            href="https://insforge.dev"
+            target="_blank"
+            rel="noopener"
+            className="underline transition-colors hover:text-[var(--ink)]"
+          >
+            InsForge
+          </a>
+        </p>
+      </div>
     </footer>
   )
 }
