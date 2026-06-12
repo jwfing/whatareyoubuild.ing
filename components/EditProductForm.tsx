@@ -58,6 +58,12 @@ export default function EditProductForm({ product }: { product: Product }) {
         : `Could not save your changes${e.message ? `: ${e.message}` : ''}. Please try again.`)
       setBusy(false); return
     }
+    // The new logo is now saved — best-effort clean up the replaced one so it
+    // doesn't orphan in storage. (Only after a successful save, so a cancelled
+    // edit never deletes the still-referenced original.)
+    if (cover.key !== product.image_key) {
+      insforge.storage.from('product-images').remove(product.image_key).catch(() => {})
+    }
     router.push(`/p/${product.id}`)
     router.refresh()
   }

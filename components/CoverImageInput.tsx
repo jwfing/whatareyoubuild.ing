@@ -18,6 +18,11 @@ export default function CoverImageInput({
 }) {
   const insforge = getBrowserClient()
   const inputRef = useRef<HTMLInputElement>(null)
+  // Keys uploaded in THIS session — safe to delete from storage when removed,
+  // since they aren't referenced by any saved product yet. The initial value's
+  // key (an already-saved image) is intentionally NOT tracked here; the form
+  // owns that deletion, and only after a successful save.
+  const sessionKeys = useRef<Set<string>>(new Set())
   const [uploading, setUploading] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
@@ -33,6 +38,7 @@ export default function CoverImageInput({
       .then((up) => {
         const d = up.data
         if (up.error || !d) { setErr('Upload failed. Please try again.'); return }
+        sessionKeys.current.add(d.key)
         onChange({ url: d.url, key: d.key })
       })
       .catch(() => setErr('Upload failed. Please try again.'))
@@ -40,6 +46,15 @@ export default function CoverImageInput({
         setUploading(false)
         if (inputRef.current) inputRef.current.value = ''
       })
+  }
+
+  function remove() {
+    const key = value?.key
+    if (key && sessionKeys.current.has(key)) {
+      sessionKeys.current.delete(key)
+      insforge.storage.from('product-images').remove(key).catch(() => {})
+    }
+    onChange(null)
   }
 
   return (
@@ -51,7 +66,7 @@ export default function CoverImageInput({
             <Image src={value.url} alt="" fill sizes="80px" className="object-contain" />
             <button
               type="button"
-              onClick={() => onChange(null)}
+              onClick={remove}
               aria-label="Remove image"
               className="rule absolute right-0 top-0 bg-[var(--paper)] px-1 text-xs leading-none"
             >
