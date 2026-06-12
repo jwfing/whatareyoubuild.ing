@@ -22,7 +22,10 @@ body {
 }
 .mono { font-family: var(--font-mono), ui-monospace, monospace; }
 .hairline { border-bottom: 1px solid var(--line); }
-.rule { border: 2px solid var(--ink); }
+/* Light, thin frame — the same divider tone used between feed rows. Emphasis is
+   carried by fills (active tab underline, voted state, button hover), not by a
+   heavy resting border. */
+.rule { border: 1px solid var(--line); }
 .masthead { font-weight: 800; letter-spacing: -0.5px; }
 
 /* --- Feed interaction + motion (monochrome, no shadow) --- */

@@ -8,7 +8,7 @@ export default function ErrorBanner({ code }: { code: string }) {
   const msg = MESSAGES[code] ?? 'Something went wrong. Please try again.'
   return (
     <div className="mx-auto max-w-2xl px-5 pt-4">
-      <p className="rule mono px-3 py-2 text-sm" role="alert">{msg}</p>
+      <p className="mono border border-[var(--ink)] px-3 py-2 text-sm" role="alert">{msg}</p>
     </div>
   )
 }
