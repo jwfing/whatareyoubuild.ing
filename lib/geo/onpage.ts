@@ -70,6 +70,24 @@ export function aiBotsBlocked(robots: string): string[] {
   return [...blocked]
 }
 
+// Pull every @type out of a parsed JSON-LD value, following @graph containers
+// and arrays. Handles the common shapes: a bare object, an array of objects,
+// and { "@context": …, "@graph": [ … ] }.
+export function collectLdTypes(node: unknown, out: string[]): void {
+  if (!node) return
+  if (Array.isArray(node)) {
+    for (const n of node) collectLdTypes(n, out)
+    return
+  }
+  if (typeof node === 'object') {
+    const o = node as Record<string, unknown>
+    const t = o['@type']
+    if (Array.isArray(t)) for (const x of t) out.push(String(x))
+    else if (t) out.push(String(t))
+    if (o['@graph']) collectLdTypes(o['@graph'], out)
+  }
+}
+
 export function scoreItems(items: CheckItem[]): number {
   if (!items.length) return 0
   let got = 0
@@ -198,15 +216,12 @@ export function analyzeOnPage(page: PageDoc): HealthLayer {
   const tw = $('meta[name="twitter:card"]').attr('content')
   add('twitter', 'Twitter Card', !!tw, true, tw || 'No twitter:card.', 'Add a twitter:card (summary_large_image) for rich previews on X.')
 
-  // Structured data
+  // Structured data — collect @type values, descending into @graph and arrays
+  // (very common wrappers; the old top-level-only check missed them).
   const ldTypes: string[] = []
   $('script[type="application/ld+json"]').each((_, e) => {
     try {
-      const parsed = JSON.parse($(e).contents().text())
-      const arr = Array.isArray(parsed) ? parsed : [parsed]
-      for (const o of arr) {
-        if (o && o['@type']) ldTypes.push(String(o['@type']))
-      }
+      collectLdTypes(JSON.parse($(e).text()), ldTypes)
     } catch {
       /* malformed JSON-LD — ignore */
     }

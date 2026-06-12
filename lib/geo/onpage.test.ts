@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { analyzeOnPage, aiBotsBlocked, scoreItems, type PageDoc } from './onpage'
+import { analyzeOnPage, aiBotsBlocked, scoreItems, collectLdTypes, type PageDoc } from './onpage'
 
 const base = (html: string, extra: Partial<PageDoc> = {}): PageDoc => ({
   status: 200,
@@ -53,6 +53,40 @@ describe('analyzeOnPage', () => {
   it('treats multiple H1s as a recommendation, not a pass', () => {
     const r = analyzeOnPage(base(goodHtml.replace('<h1>Acme builds widgets</h1>', '<h1>One</h1><h1>Two</h1>')))
     expect(r.items.find((i) => i.id === 'h1')?.status).toBe('recommended')
+  })
+})
+
+describe('collectLdTypes', () => {
+  it('reads a bare object', () => {
+    const out: string[] = []
+    collectLdTypes({ '@type': 'SoftwareApplication' }, out)
+    expect(out).toEqual(['SoftwareApplication'])
+  })
+  it('descends into @graph (the insforge.dev shape)', () => {
+    const out: string[] = []
+    collectLdTypes(
+      { '@context': 'https://schema.org', '@graph': [{ '@type': 'Organization' }, { '@type': 'WebSite' }, { '@type': 'SoftwareApplication' }] },
+      out,
+    )
+    expect(out).toEqual(['Organization', 'WebSite', 'SoftwareApplication'])
+  })
+  it('handles a top-level array and array-valued @type', () => {
+    const out: string[] = []
+    collectLdTypes([{ '@type': 'Product' }, { '@type': ['WebPage', 'FAQPage'] }], out)
+    expect(out).toEqual(['Product', 'WebPage', 'FAQPage'])
+  })
+})
+
+describe('analyzeOnPage @graph JSON-LD', () => {
+  it('counts @graph-wrapped structured data as present', () => {
+    const html = `<html lang="en"><head><title>Acme widgets builder</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Acme"},{"@type":"WebSite"}]}</script>
+</head><body><h1>Acme</h1><p>${'word '.repeat(150)}</p></body></html>`
+    const r = analyzeOnPage({ status: 200, finalUrl: 'https://ex.com', html, robotsTxt: null, llmsTxtExists: false, sitemapHint: false })
+    const jsonld = r.items.find((i) => i.id === 'jsonld')!
+    expect(jsonld.status).toBe('done')
+    expect(jsonld.detail).toContain('Organization')
+    expect(jsonld.detail).toContain('WebSite')
   })
 })
 
