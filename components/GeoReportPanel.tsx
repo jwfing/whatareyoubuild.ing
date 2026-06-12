@@ -104,10 +104,17 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
 
   const latest = rows[0]
   const r = latest?.report
-  const urgent = r?.health.items.filter((i) => i.status === 'urgent') ?? []
-  const tune = r?.health.items.filter((i) => i.status === 'recommended') ?? []
-  const done = r?.health.items.filter((i) => i.status === 'done') ?? []
+  // Reports are stored append-only, so older versions may predate fields added
+  // later (e.g. the per-engine `engines`). Default every array we read so an
+  // old cached report can never crash the panel.
+  const items = r?.health?.items ?? []
+  const urgent = items.filter((i) => i.status === 'urgent')
+  const tune = items.filter((i) => i.status === 'recommended')
+  const done = items.filter((i) => i.status === 'done')
   const fp = r?.footprint
+  const engines = fp?.engines ?? []
+  const prompts = fp?.prompts ?? []
+  const competitors = fp?.competitors ?? []
 
   return (
     <section>
@@ -222,11 +229,11 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                     />
                     <Metric n={`${fp.shareOfVoice.score}`} unit="%" label="Share of Voice" detail={fp.shareOfVoice.detail} />
                   </dl>
-                  {fp.engines.length > 1 && (
+                  {engines.length > 1 && (
                     <div className="mt-3">
                       <div className="mono mb-1.5 text-[10px] tracking-[0.12em] text-[var(--muted)]">VISIBILITY BY ENGINE</div>
                       <ul className="space-y-1.5">
-                        {fp.engines.map((e) => (
+                        {engines.map((e) => (
                           <li key={e.id} className="flex items-center gap-2 text-xs">
                             <span className="w-20 shrink-0 truncate">{e.label}</span>
                             <span className="h-1.5 flex-1 bg-[var(--line)]">
@@ -244,16 +251,16 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                   {fp.category && (
                     <p className="mt-3 text-xs text-[var(--muted)]">
                       Category: <span className="text-[var(--ink)]">{fp.category}</span>
-                      {fp.competitors.length > 0 && <> · Measured against: {fp.competitors.join(', ')}</>}
+                      {competitors.length > 0 && <> · Measured against: {competitors.join(', ')}</>}
                     </p>
                   )}
-                  {fp.prompts.length > 0 && (
+                  {prompts.length > 0 && (
                     <details className="mt-2">
                       <summary className="mono cursor-pointer text-xs text-[var(--muted)] hover:text-[var(--ink)]">
-                        {fp.prompts.length} prompts we asked AI — show
+                        {prompts.length} prompts we asked AI — show
                       </summary>
                       <ol className="mt-1 space-y-1">
-                        {fp.prompts.map((p, i) => (
+                        {prompts.map((p, i) => (
                           <li key={i} className="text-sm text-[var(--muted)]">
                             “{p}”
                           </li>
@@ -273,9 +280,9 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                       “{r.commentary.aiDescription}”
                     </p>
                   )}
-                  {r.commentary.improvements.length > 0 && (
+                  {(r.commentary.improvements?.length ?? 0) > 0 && (
                     <ol className="mt-4 space-y-2">
-                      {r.commentary.improvements.map((s, i) => (
+                      {(r.commentary.improvements ?? []).map((s, i) => (
                         <li key={i} className="flex gap-2.5 text-sm">
                           <span className="mono shrink-0 text-[var(--muted)]">{i + 1}.</span>
                           <span>{s}</span>
