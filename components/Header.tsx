@@ -20,7 +20,7 @@ export default function Header({ user }: { user: SessionUser | null }) {
   }, [user])
 
   return (
-    <header className="rule border-x-0 border-t-0 flex items-center justify-between px-5 py-3">
+    <header className="flex items-center justify-between border-b border-[var(--line)] px-5 py-3">
       <Link href="/" aria-label="What Are You Building — home" className="flex items-center gap-2">
         <LogoMark className="h-9 w-9 shrink-0" />
         <span className="masthead hidden text-lg leading-none sm:inline">WHAT ARE YOU BUILDING</span>

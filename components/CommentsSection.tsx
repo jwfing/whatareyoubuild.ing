@@ -71,7 +71,7 @@ export default function CommentsSection({
             rows={3}
             placeholder="Leave the builder some feedback…"
             aria-label="Write a comment"
-            className="rule w-full px-3 py-2"
+            className="w-full border border-[var(--line)] px-3 py-2 focus:border-[var(--ink)] focus:outline-none"
           />
           <div className="mt-2 flex items-center justify-between">
             <span className="mono text-xs text-[var(--muted)]">{body.length}/500</span>
@@ -87,7 +87,7 @@ export default function CommentsSection({
       ) : (
         <button
           onClick={() => router.push('/signin')}
-          className="rule mono mb-6 w-full px-3 py-3 text-left text-sm text-[var(--muted)] transition-colors hover:bg-[var(--paper-2)]"
+          className="mono mb-6 w-full border border-[var(--line)] px-3 py-3 text-left text-sm text-[var(--muted)] transition-colors hover:bg-[var(--paper-2)]"
         >
           Sign in to leave feedback →
         </button>

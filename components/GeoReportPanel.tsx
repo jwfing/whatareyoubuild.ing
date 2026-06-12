@@ -32,7 +32,7 @@ function StatusTag({ status }: { status: CheckStatus }) {
 
 function ScoreTile({ label, score, grade: g, sub }: { label: string; score: number; grade?: string; sub: string }) {
   return (
-    <div className="flex-1 border border-[var(--ink)] bg-[var(--paper)] px-4 py-3">
+    <div className="flex-1 border border-[var(--line)] bg-[var(--paper)] px-4 py-3">
       <div className="mono text-[11px] tracking-[0.15em] text-[var(--muted)]">{label}</div>
       <div className="mt-1 flex items-baseline gap-1.5">
         <span className="masthead text-5xl leading-none tabular-nums">{score}</span>
@@ -118,7 +118,7 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
 
   return (
     <section>
-      <div className="rule bg-[var(--report)]">
+      <div className="border border-[var(--line)] bg-[var(--report)]">
         {/* Reverse-printed header bar — marks this as a distinct, private module */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-[var(--ink)] px-4 py-3 text-[var(--paper)] sm:px-6">
           <div>
@@ -145,7 +145,7 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
           {error && <p className="mono mt-3 text-sm text-red-700">{error}</p>}
 
           {!latest && (loadingHistory || running) && (
-            <div className="mt-5 border border-[var(--ink)] bg-[var(--paper)] px-5 py-12 text-center">
+            <div className="mt-5 border border-[var(--line)] bg-[var(--paper)] px-5 py-12 text-center">
               <p className="masthead text-lg">{running ? 'Running your first GEO check…' : 'Loading…'}</p>
               {running && (
                 <p className="mt-1 text-sm text-[var(--muted)]">
@@ -218,7 +218,7 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                 <p className="text-sm text-[var(--muted)]">{fp?.note ?? 'Could not measure AI footprint this run.'}</p>
               ) : (
                 <>
-                  <dl className="grid grid-cols-2 divide-x divide-y divide-[var(--line)] border border-[var(--ink)] bg-[var(--paper)]">
+                  <dl className="grid grid-cols-2 divide-x divide-y divide-[var(--line)] border border-[var(--line)] bg-[var(--paper)]">
                     <Metric n={`${fp.visibility.score}`} unit="/100" label="Visibility" detail={fp.visibility.detail} />
                     <Metric n={`${fp.citations.count}`} unit={`/${fp.citations.probes}`} label="Citations" detail={fp.citations.detail} />
                     <Metric
@@ -276,7 +276,7 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
                 <>
                   <SectionLabel>WHAT AI SEES</SectionLabel>
                   {r.commentary.aiDescription && (
-                    <p className="border border-[var(--ink)] bg-[var(--paper)] px-4 py-3 text-[15px] italic leading-relaxed">
+                    <p className="border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-[15px] italic leading-relaxed">
                       “{r.commentary.aiDescription}”
                     </p>
                   )}

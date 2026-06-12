@@ -93,7 +93,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const isOwner = user?.id === p.author_id
 
   const heroCard = (
-    <div className="rule flex gap-4 p-4">
+    <div className="flex gap-4 border border-[var(--line)] p-4">
       <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] shrink-0 bg-[var(--paper-2)] object-contain" />
       <div className="flex-1">
         <h1 className="masthead text-3xl">{p.name}</h1>
