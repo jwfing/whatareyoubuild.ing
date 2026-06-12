@@ -1,15 +1,18 @@
 'use client'
 import { useState } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { getBrowserClient, type Product, type Screenshot } from '@/lib/insforge'
 import ScreenshotManager from './ScreenshotManager'
+import CoverImageInput from './CoverImageInput'
 
 export default function EditProductForm({ product }: { product: Product }) {
   const router = useRouter()
   const insforge = getBrowserClient()
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [cover, setCover] = useState<Screenshot | null>(
+    product.image_url ? { url: product.image_url, key: product.image_key } : null,
+  )
   const [shots, setShots] = useState<Screenshot[]>(product.screenshots ?? [])
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -33,27 +36,16 @@ export default function EditProductForm({ product }: { product: Product }) {
       }
     }
 
-    // Image is optional on edit — keep the current one unless a new file is chosen.
-    let image_url = product.image_url
-    let image_key = product.image_key
-    const file = form.get('image') as File
-    if (file && file.size > 0) {
-      if (!file.type.startsWith('image/')) { setErr('Please choose an image file.'); setBusy(false); return }
-      if (file.size > 5 * 1024 * 1024) { setErr('Image must be under 5 MB.'); setBusy(false); return }
-      const up = await insforge.storage.from('product-images').uploadAuto(file)
-      if (up.error || !up.data) { setErr('Image upload failed.'); setBusy(false); return }
-      image_url = up.data.url
-      image_key = up.data.key
-    }
+    if (!cover) { setErr('A logo / icon image is required.'); setBusy(false); return }
 
-    // Screenshots were uploaded as they were added (see ScreenshotManager).
+    // The logo and screenshots were uploaded as they were added/replaced.
     const { error } = await insforge.database.from('products').update({
       name,
       tagline,
       link,
       description: String(form.get('description') || '').trim() || null,
-      image_url,
-      image_key,
+      image_url: cover.url,
+      image_key: cover.key,
       screenshots: shots,
     }).eq('id', product.id)
 
@@ -76,13 +68,7 @@ export default function EditProductForm({ product }: { product: Product }) {
       <input name="tagline" aria-label="One-line tagline" defaultValue={product.tagline} required maxLength={60} placeholder="One line (≤60 chars)" className="rule w-full px-3 py-2" />
       <input name="link" aria-label="Product link" type="url" defaultValue={product.link ?? ''} placeholder="Link (optional)" className="rule w-full px-3 py-2" />
       <textarea name="description" aria-label="Details" defaultValue={product.description ?? ''} placeholder="Details (optional, markdown)" className="rule w-full px-3 py-2" rows={4} />
-      <div className="flex items-center gap-3">
-        <Image src={product.image_url} alt="" width={56} height={56} className="rule h-14 w-14 object-cover" />
-        <div className="min-w-0">
-          <input name="image" aria-label="Replace image" type="file" accept="image/*" className="mono block text-sm" />
-          <p className="mono mt-1 text-xs text-[var(--muted)]">Leave blank to keep the current image.</p>
-        </div>
-      </div>
+      <CoverImageInput value={cover} onChange={setCover} />
 
       <ScreenshotManager value={shots} onChange={setShots} />
 
