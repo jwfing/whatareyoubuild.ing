@@ -3,17 +3,19 @@ import { getServerClient } from '@/lib/insforge'
 import { SITE_URL } from '@/lib/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let products: { id: string; created_at: string }[] = []
+  let products: { id: string; created_at: string; author_id: string }[] = []
   try {
     const { data } = await getServerClient()
       .database.from('products')
-      .select('id, created_at')
+      .select('id, created_at, author_id')
       .order('created_at', { ascending: false })
       .limit(5000)
-    products = (data ?? []) as { id: string; created_at: string }[]
+    products = (data ?? []) as { id: string; created_at: string; author_id: string }[]
   } catch {
     products = []
   }
+
+  const builders = [...new Set(products.map((p) => p.author_id))]
 
   return [
     { url: `${SITE_URL}/`, changeFrequency: 'hourly', priority: 1 },
@@ -25,6 +27,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(p.created_at),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+    })),
+    ...builders.map((uid) => ({
+      url: `${SITE_URL}/u/${uid}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
     })),
   ]
 }

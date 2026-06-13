@@ -28,7 +28,7 @@ export default function Header({ user }: { user: SessionUser | null }) {
       <div className="flex items-center gap-3">
         <Link href="/submit" className="rule mono text-xs px-2 py-1">+ SUBMIT</Link>
         {user
-          ? <UserMenu label={user.name ?? user.email ?? 'Account'} />
+          ? <UserMenu label={user.name ?? user.email ?? 'Account'} userId={user.id} />
           : <AuthButtons />}
       </div>
     </header>

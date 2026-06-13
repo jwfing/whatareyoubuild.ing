@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { signOutAction } from '@/app/auth/actions'
 
-export default function UserMenu({ label }: { label: string }) {
+export default function UserMenu({ label, userId }: { label: string; userId?: string }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -50,6 +50,16 @@ export default function UserMenu({ label }: { label: string }) {
           >
             My products
           </Link>
+          {userId && (
+            <Link
+              role="menuitem"
+              href={`/u/${userId}`}
+              onClick={() => setOpen(false)}
+              className="block border-t border-[var(--line)] px-3 py-2 text-sm transition-colors hover:bg-[var(--paper-2)]"
+            >
+              Public profile
+            </Link>
+          )}
           <Link
             role="menuitem"
             href="/profile"

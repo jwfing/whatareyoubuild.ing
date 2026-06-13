@@ -28,6 +28,15 @@ async function getProduct(id: string): Promise<Product | null> {
   return (data as Product) ?? null
 }
 
+async function getAuthorName(id: string): Promise<string> {
+  try {
+    const { data } = await getServerClient().auth.getProfile(id)
+    return ((data?.profile as { name?: string } | undefined)?.name || '').trim() || 'a builder'
+  } catch {
+    return 'a builder'
+  }
+}
+
 async function getComments(productId: string): Promise<CommentItem[]> {
   const insforge = getServerClient()
   const { data } = await insforge.database
@@ -74,7 +83,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   if (!p) notFound()
   const safeLink = safeHttpUrl(p.link)
   const user = await getServerUser()
-  const comments = await getComments(p.id)
+  const [comments, authorName] = await Promise.all([getComments(p.id), getAuthorName(p.author_id)])
   const productLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -84,6 +93,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     operatingSystem: 'Web',
     url: safeLink ?? `${SITE_URL}/p/${p.id}`,
     image: p.image_url,
+    author: { '@type': 'Person', name: authorName, url: `${SITE_URL}/u/${p.author_id}` },
     ...(p.screenshots?.length ? { screenshot: p.screenshots.map((s) => s.url) } : {}),
     interactionStatistic: [
       { '@type': 'InteractionCounter', interactionType: 'https://schema.org/LikeAction', userInteractionCount: p.vote_count },
@@ -98,7 +108,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <div className="flex-1">
         <h1 className="masthead text-3xl">{p.name}</h1>
         <p className="text-[var(--muted)]">{p.tagline}</p>
-        {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 inline-block text-sm underline">Visit →</a>}
+        <Link href={`/u/${p.author_id}`} className="mono mt-1 inline-block text-xs text-[var(--muted)] underline transition-colors hover:text-[var(--ink)]">
+          by {authorName}
+        </Link>
+        {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 block w-fit text-sm underline">Visit →</a>}
         <div className="mt-3 flex items-center gap-3">
           <ShareButton productId={p.id} />
           {isOwner && (
