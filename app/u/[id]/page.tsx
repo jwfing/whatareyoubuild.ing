@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ProductRow from '@/components/ProductRow'
+import FollowButton from '@/components/FollowButton'
 import { getServerClient, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
 import { SITE_URL } from '@/lib/site'
@@ -32,6 +33,29 @@ async function getProducts(id: string): Promise<Product[]> {
   return (data ?? []) as Product[]
 }
 
+async function getFollowerCount(id: string): Promise<number> {
+  try {
+    const { data } = await getServerClient().database.from('follows').select('follower_id').eq('following_id', id).limit(5000)
+    return data?.length ?? 0
+  } catch {
+    return 0
+  }
+}
+
+async function viewerFollows(viewerId: string, id: string): Promise<boolean> {
+  try {
+    const { data } = await getServerClient()
+      .database.from('follows')
+      .select('follower_id')
+      .eq('follower_id', viewerId)
+      .eq('following_id', id)
+      .maybeSingle()
+    return !!data
+  } catch {
+    return false
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const info = await getProfileInfo(id)
@@ -46,12 +70,19 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const [info, products, viewer] = await Promise.all([getProfileInfo(id), getProducts(id), getServerUser()])
+  const viewer = await getServerUser()
+  const [info, products, followers, isFollowing] = await Promise.all([
+    getProfileInfo(id),
+    getProducts(id),
+    getFollowerCount(id),
+    viewer && viewer.id !== id ? viewerFollows(viewer.id, id) : Promise.resolve(false),
+  ])
   if (!info && products.length === 0) notFound()
 
   const name = info?.name ?? 'A builder'
   const totalVotes = products.reduce((sum, p) => sum + (p.vote_count || 0), 0)
   const isYou = viewer?.id === id
+  const canFollow = !!viewer && viewer.id !== id
 
   const personLd = {
     '@context': 'https://schema.org',
@@ -80,10 +111,11 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
               {name.charAt(0).toUpperCase()}
             </div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="masthead truncate text-3xl">{name}</h1>
             <p className="mono mt-1 text-xs text-[var(--muted)]">
-              {products.length} {products.length === 1 ? 'product' : 'products'} · ▲ {totalVotes} total
+              {products.length} {products.length === 1 ? 'product' : 'products'} · ▲ {totalVotes} total · {followers}{' '}
+              {followers === 1 ? 'follower' : 'followers'}
               {isYou && (
                 <>
                   {' · '}
@@ -94,6 +126,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
               )}
             </p>
           </div>
+          {canFollow && <FollowButton profileId={id} initialFollowing={isFollowing} />}
         </div>
 
         {products.length === 0 ? (

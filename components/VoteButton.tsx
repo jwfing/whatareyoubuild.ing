@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { getBrowserClient } from '@/lib/insforge'
 import { toggleVote } from '@/lib/vote'
 import { track } from '@/lib/posthog'
+import { notify } from '@/lib/notify'
 
 type Size = 'sm' | 'lg'
 
@@ -59,7 +60,12 @@ export default function VoteButton({
     try {
       if (next.voted) {
         const { error } = await insforge.database.from('votes').insert({ product_id: productId })
-        if (error) setState(prev); else track.voteCast(productId)
+        if (error) {
+          setState(prev)
+        } else {
+          track.voteCast(productId)
+          notify({ type: 'vote', productId }) // email the owner on milestones (best-effort)
+        }
       } else {
         const { error } = await insforge.database.from('votes').delete()
           .eq('product_id', productId).eq('user_id', userId)

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getBrowserClient } from '@/lib/insforge'
+import { notify } from '@/lib/notify'
 import { timeAgo } from '@/lib/format'
 
 export type CommentItem = {
@@ -47,6 +48,7 @@ export default function CommentsSection({
       ...cs,
     ])
     setBody('')
+    notify({ type: 'comment', commentId: row.id }) // email the product owner (best-effort)
   }
 
   async function onDelete(id: string) {
