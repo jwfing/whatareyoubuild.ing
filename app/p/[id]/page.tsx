@@ -105,13 +105,29 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const heroCard = (
     <div className="flex gap-4 border border-[var(--line)] p-4">
       <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] shrink-0 bg-[var(--paper-2)] object-contain" />
-      <div className="flex-1">
-        <h1 className="masthead text-3xl">{p.name}</h1>
-        <p className="text-[var(--muted)]">{p.tagline}</p>
-        <Link href={`/u/${p.author_id}`} className="mono mt-1 inline-block text-xs text-[var(--muted)] underline transition-colors hover:text-[var(--ink)]">
-          by {authorName}
-        </Link>
-        {safeLink && <a href={safeLink} target="_blank" rel="noopener" className="mono mt-2 block w-fit text-sm underline">Visit →</a>}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-start gap-2">
+          <h1 className="masthead min-w-0 flex-1 text-3xl">
+            {safeLink ? (
+              <a href={safeLink} target="_blank" rel="noopener" className="underline-offset-4 hover:underline">{p.name}</a>
+            ) : (
+              p.name
+            )}
+          </h1>
+          {safeLink && (
+            <a
+              href={safeLink}
+              target="_blank"
+              rel="noopener"
+              aria-label={`Visit ${p.name}`}
+              title="Visit the product site"
+              className="rule mono mt-1 shrink-0 px-2 py-1 text-sm transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+            >
+              ↗
+            </a>
+          )}
+        </div>
+        <p className="mt-0.5 text-[var(--muted)]">{p.tagline}</p>
         <div className="mt-3 flex items-center gap-3">
           <ShareButton productId={p.id} />
           {isOwner && (
@@ -119,6 +135,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               Edit
             </Link>
           )}
+          <Link href={`/u/${p.author_id}`} className="mono ml-auto min-w-0 truncate text-xs text-[var(--muted)] underline transition-colors hover:text-[var(--ink)]">
+            by {authorName}
+          </Link>
         </div>
       </div>
       <VoteButton productId={p.id} initialCount={p.vote_count} userId={user?.id ?? null} />
