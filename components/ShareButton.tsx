@@ -65,7 +65,7 @@ export default function ShareButton({ productId, productName }: { productId: str
             onClick={postToX}
             className="mono block w-full px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--paper-2)]"
           >
-            Post to X 𝕏
+            Post to X
           </button>
           <button
             role="menuitem"
