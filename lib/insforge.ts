@@ -33,3 +33,20 @@ export type Product = {
 }
 
 export type Screenshot = { url: string; key: string }
+
+// The single most-upvoted product (the "champion"), or null if nothing has a
+// vote yet. Used to badge it across the feed and its detail page.
+export async function getTopVotedProductId(): Promise<string | null> {
+  try {
+    const { data } = await getServerClient()
+      .database.from('products')
+      .select('id, vote_count')
+      .order('vote_count', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const row = data as { id: string; vote_count: number } | null
+    return row && row.vote_count > 0 ? row.id : null
+  } catch {
+    return null
+  }
+}

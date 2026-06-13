@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { getServerClient, type Product } from '@/lib/insforge'
+import { getServerClient, getTopVotedProductId, type Product } from '@/lib/insforge'
 import ProductRow from './ProductRow'
 import VoteButton from './VoteButton'
+import TopVotedBadge from './TopVotedBadge'
 
 function Tab({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
@@ -20,7 +21,10 @@ function Tab({ href, active, children }: { href: string; active: boolean; childr
 
 export default async function Feed({ sort, userId }: { sort: 'new' | 'hot'; userId: string | null }) {
   const insforge = getServerClient()
-  const { data, error } = await insforge.database.rpc('list_products', { p_sort: sort, p_limit: 30, p_offset: 0 })
+  const [{ data, error }, topId] = await Promise.all([
+    insforge.database.rpc('list_products', { p_sort: sort, p_limit: 30, p_offset: 0 }),
+    getTopVotedProductId(),
+  ])
 
   if (error) {
     console.error('list_products failed', error)
@@ -43,14 +47,15 @@ export default async function Feed({ sort, userId }: { sort: 'new' | 'hot'; user
           <Link href="/submit" className="rule mono mt-5 inline-block px-4 py-2 transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">+ SUBMIT YOURS</Link>
         </div>
       ) : (
-        <FeedBody products={products} userId={userId} />
+        <FeedBody products={products} userId={userId} topId={topId} />
       )}
     </div>
   )
 }
 
-function FeedBody({ products, userId }: { products: Product[]; userId: string | null }) {
+function FeedBody({ products, userId, topId }: { products: Product[]; userId: string | null; topId: string | null }) {
   const [featured, ...rest] = products
+  const featuredIsTop = !!topId && featured.id === topId
   return (
     <>
       {/* Today's top — a modestly distinguished lead, not a hero. Same row
@@ -68,7 +73,11 @@ function FeedBody({ products, userId }: { products: Product[]; userId: string | 
             className="feed-thumb rule h-20 w-20 shrink-0 object-cover"
           />
           <span className="min-w-0 flex-1">
-            <span className="mono block text-[10px] tracking-[0.18em] text-[var(--muted)]">★ TODAY’S TOP</span>
+            {featuredIsTop ? (
+              <span className="mb-0.5 block"><TopVotedBadge /></span>
+            ) : (
+              <span className="mono block text-[10px] tracking-[0.18em] text-[var(--muted)]">★ TODAY’S TOP</span>
+            )}
             <b className="block truncate text-lg">{featured.name}</b>
             <span className="block truncate text-sm text-[var(--muted)]">{featured.tagline}</span>
           </span>
@@ -77,7 +86,7 @@ function FeedBody({ products, userId }: { products: Product[]; userId: string | 
         </li>
 
         {rest.map((p, i) => (
-          <ProductRow key={p.id} p={p} rank={i + 2} userId={userId} index={i + 1} />
+          <ProductRow key={p.id} p={p} rank={i + 2} userId={userId} index={i + 1} isTop={!!topId && p.id === topId} />
         ))}
       </ol>
     </>

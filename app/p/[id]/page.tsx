@@ -9,7 +9,8 @@ import PageView from '@/components/PageView'
 import CommentsSection, { type CommentItem } from '@/components/CommentsSection'
 import ScreenshotGallery from '@/components/ScreenshotGallery'
 import GeoReportPanel from '@/components/GeoReportPanel'
-import { getServerClient, type Product } from '@/lib/insforge'
+import TopVotedBadge from '@/components/TopVotedBadge'
+import { getServerClient, getTopVotedProductId, type Product } from '@/lib/insforge'
 import { getServerUser } from '@/lib/auth-server'
 import { SITE_URL } from '@/lib/site'
 
@@ -83,7 +84,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   if (!p) notFound()
   const safeLink = safeHttpUrl(p.link)
   const user = await getServerUser()
-  const [comments, authorName] = await Promise.all([getComments(p.id), getAuthorName(p.author_id)])
+  const [comments, authorName, topId] = await Promise.all([
+    getComments(p.id),
+    getAuthorName(p.author_id),
+    getTopVotedProductId(),
+  ])
+  const isTopVoted = topId === p.id
   const productLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -106,6 +112,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     <div className="flex gap-4 border border-[var(--line)] p-4">
       <Image src={p.image_url} alt={p.name} width={160} height={120} className="h-[120px] w-[160px] shrink-0 bg-[var(--paper-2)] object-contain" />
       <div className="flex min-w-0 flex-1 flex-col">
+        {isTopVoted && <span className="mb-1 self-start"><TopVotedBadge /></span>}
         <div className="flex items-start gap-2">
           <h1 className="masthead min-w-0 flex-1 text-3xl">
             {safeLink ? (
@@ -129,7 +136,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
         <p className="mt-0.5 text-[var(--muted)]">{p.tagline}</p>
         <div className="mt-3 flex items-center gap-3">
-          <ShareButton productId={p.id} />
+          <ShareButton productId={p.id} productName={p.name} />
           {isOwner && (
             <Link href={`/p/${p.id}/edit`} className="rule mono px-3 py-1 text-xs transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]">
               Edit

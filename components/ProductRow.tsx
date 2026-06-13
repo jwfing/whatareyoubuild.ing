@@ -2,17 +2,20 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Product } from '@/lib/insforge'
 import VoteButton from './VoteButton'
+import TopVotedBadge from './TopVotedBadge'
 
 export default function ProductRow({
   p,
   rank,
   userId,
   index = 0,
+  isTop = false,
 }: {
   p: Product
   rank: number
   userId: string | null
   index?: number
+  isTop?: boolean
 }) {
   return (
     <li
@@ -28,6 +31,7 @@ export default function ProductRow({
         className="feed-thumb rule h-16 w-16 shrink-0 object-cover"
       />
       <span className="min-w-0 flex-1">
+        {isTop && <span className="mb-0.5 block"><TopVotedBadge /></span>}
         <b className="block truncate">{p.name}</b>
         <span className="block truncate text-sm text-[var(--muted)]">{p.tagline}</span>
       </span>
