@@ -10,15 +10,20 @@ export default function ProfileForm({ initialProfile }: { initialProfile: Record
   const fileRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState(String(initialProfile.name ?? ''))
   const [avatarUrl, setAvatarUrl] = useState<string | null>((initialProfile.avatar_url as string) || null)
+  // Storage key for a CUSTOM-uploaded avatar (so we can clean it up on replace).
+  // OAuth avatars have no key — they live on Google/GitHub, not our storage.
+  const [avatarKey, setAvatarKey] = useState<string | null>((initialProfile.avatar_key as string) || null)
   const [busy, setBusy] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
 
   // Always send the whole profile (merged with whatever OAuth populated) so a
   // partial update never drops the other field.
-  async function persist(nextName: string, nextAvatar: string | null) {
+  async function persist(nextName: string, nextAvatar: string | null, nextKey: string | null) {
     const profile: Record<string, unknown> = { ...initialProfile, name: nextName.trim() }
     if (nextAvatar) profile.avatar_url = nextAvatar
+    if (nextKey) profile.avatar_key = nextKey
+    else delete profile.avatar_key
     return insforge.auth.setProfile(profile)
   }
 
@@ -31,10 +36,21 @@ export default function ProfileForm({ initialProfile }: { initialProfile: Record
     if (fileRef.current) fileRef.current.value = ''
     if (up.error || !up.data) { setUploading(false); setMsg({ kind: 'err', text: 'Upload failed. Try again.' }); return }
     const newUrl = up.data.url
-    const { error } = await persist(name, newUrl)
+    const newKey = up.data.key
+    const oldKey = avatarKey // the previous custom avatar, if any
+    const { error } = await persist(name, newUrl, newKey)
     setUploading(false)
-    if (error) { setMsg({ kind: 'err', text: 'Could not save your photo.' }); return }
+    if (error) {
+      // the just-uploaded image is now orphaned — best-effort remove it
+      insforge.storage.from('product-images').remove(newKey).catch(() => {})
+      setMsg({ kind: 'err', text: 'Could not save your photo.' })
+      return
+    }
     setAvatarUrl(newUrl)
+    setAvatarKey(newKey)
+    // Clean up the replaced avatar (only custom uploads have a key; never the
+    // OAuth one). Best-effort, after the new one is saved.
+    if (oldKey && oldKey !== newKey) insforge.storage.from('product-images').remove(oldKey).catch(() => {})
     setMsg({ kind: 'ok', text: 'Photo updated.' })
     router.refresh()
   }
@@ -44,7 +60,7 @@ export default function ProfileForm({ initialProfile }: { initialProfile: Record
     const trimmed = name.trim()
     if (!trimmed) { setMsg({ kind: 'err', text: 'Name can’t be empty.' }); return }
     setBusy(true); setMsg(null)
-    const { error } = await persist(trimmed, avatarUrl)
+    const { error } = await persist(trimmed, avatarUrl, avatarKey)
     setBusy(false)
     if (error) { setMsg({ kind: 'err', text: 'Could not save. Please try again.' }); return }
     setMsg({ kind: 'ok', text: 'Saved.' })
