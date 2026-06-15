@@ -11,7 +11,12 @@
 - Home / feed: https://www.whatareyoubuild.ing/
 - About (what it is, how it works, FAQ): https://www.whatareyoubuild.ing/about
 - How HOT is calculated (the ranking formula, with worked examples): https://www.whatareyoubuild.ing/how-hot-works
+- Guides hub (all playbooks): https://www.whatareyoubuild.ing/guides
 - GEO playbook (how to show up in AI search — SEO fundamentals, conversational queries, structure, E-E-A-T, structured data, citations): https://www.whatareyoubuild.ing/geo-guide
+- Where to share what you're building (best venues for indie builders to show a product): https://www.whatareyoubuild.ing/where-to-share-your-product
+- Lightweight Product Hunt alternatives: https://www.whatareyoubuild.ing/product-hunt-alternatives
+- How to get honest feedback on your product: https://www.whatareyoubuild.ing/how-to-get-product-feedback
+- Changelog (what's new): https://www.whatareyoubuild.ing/changelog
 - A product: https://www.whatareyoubuild.ing/p/<product-id>
 - Submit your product: https://www.whatareyoubuild.ing/submit
 

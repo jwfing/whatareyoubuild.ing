@@ -31,10 +31,24 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
+// Site-wide publisher identity for search + AI engines.
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.svg`,
+  description: SITE_TAGLINE,
+  sameAs: ['https://github.com/InsForge'],
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${mono.variable}`}>
-      <body><PostHogProvider>{children}</PostHogProvider></body>
+      <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
+        <PostHogProvider>{children}</PostHogProvider>
+      </body>
     </html>
   )
 }
