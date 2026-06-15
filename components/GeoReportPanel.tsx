@@ -301,7 +301,8 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
             answers. Re-run anytime; every check is saved so you can watch it improve.
           </p>
           <p className="mono mt-2 text-[11px] text-[var(--muted)]">
-            Ideas or requests about GEO?{' '}
+            <a href="/geo-guide" className="underline transition-colors hover:text-[var(--ink)]">Read the GEO playbook →</a>
+            {'  ·  '}
             <a href="/feedback" className="underline transition-colors hover:text-[var(--ink)]">Send feedback →</a>
           </p>
 
