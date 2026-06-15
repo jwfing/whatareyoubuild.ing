@@ -300,6 +300,10 @@ export default function GeoReportPanel({ productId, preview }: { productId: stri
             A free read on how findable your product is — your page&apos;s on-page health and your current footprint in AI
             answers. Re-run anytime; every check is saved so you can watch it improve.
           </p>
+          <p className="mono mt-2 text-[11px] text-[var(--muted)]">
+            Ideas or requests about GEO?{' '}
+            <a href="/feedback" className="underline transition-colors hover:text-[var(--ink)]">Send feedback →</a>
+          </p>
 
           {error && <p className="mono mt-3 text-sm text-red-700">{error}</p>}
 

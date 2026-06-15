@@ -19,9 +19,13 @@ function move<T>(arr: T[], from: number, to: number): T[] {
 export default function ScreenshotManager({
   value,
   onChange,
+  label = 'SCREENSHOTS',
+  hint = 'Drag tiles (or use ◀ ▶) to reorder — the first is shown first.',
 }: {
   value: Screenshot[]
   onChange: React.Dispatch<React.SetStateAction<Screenshot[]>>
+  label?: string
+  hint?: string
 }) {
   const insforge = getBrowserClient()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -53,7 +57,7 @@ export default function ScreenshotManager({
 
   return (
     <div>
-      <label className="mono block text-xs text-[var(--muted)]">SCREENSHOTS ({value.length}/{MAX})</label>
+      <label className="mono block text-xs text-[var(--muted)]">{label} ({value.length}/{MAX})</label>
       <div className="mt-2 flex flex-wrap gap-2">
         {value.map((s, i) => (
           <div
@@ -108,7 +112,7 @@ export default function ScreenshotManager({
         className="hidden"
         onChange={(e) => { if (e.target.files) addFiles(e.target.files) }}
       />
-      <p className="mono mt-1.5 text-xs text-[var(--muted)]">Drag tiles (or use ◀ ▶) to reorder — the first is shown first.</p>
+      {hint && <p className="mono mt-1.5 text-xs text-[var(--muted)]">{hint}</p>}
       {err && <p className="mono mt-1 text-sm text-red-700">{err}</p>}
     </div>
   )

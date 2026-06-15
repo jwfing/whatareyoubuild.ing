@@ -71,11 +71,11 @@ async function overHourlyCap(admin: Admin, recipientId: string): Promise<boolean
   }
 }
 
-function layout(body: string): string {
+function layout(body: string, footer = `You're getting this because you have a product on ${SITE_NAME}.`): string {
   return `<div style="font-family:Georgia,'Times New Roman',serif;max-width:520px;margin:0 auto;padding:8px;color:#111">
     <div style="font-weight:800;letter-spacing:-0.5px;font-size:18px;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:18px">${SITE_NAME}</div>
     ${body}
-    <p style="color:#777;font-size:12px;margin-top:28px;border-top:1px solid #ddd;padding-top:12px">You're getting this because you have a product on ${SITE_NAME}.</p>
+    <p style="color:#777;font-size:12px;margin-top:28px;border-top:1px solid #ddd;padding-top:12px">${footer}</p>
   </div>`
 }
 
@@ -114,6 +114,7 @@ export async function POST(req: Request) {
     commentId?: string
     productId?: string
     followingId?: string
+    feedbackId?: string
   }
   const admin = getAdminClient()
 
@@ -173,6 +174,42 @@ export async function POST(req: Request) {
            ${btn(`${SITE_URL}/u/${uid}`, 'See their profile →')}`,
         ),
       }))
+    } else if (body.type === 'feedback' && body.feedbackId) {
+      const to = process.env.FEEDBACK_EMAIL
+      if (!to) return ok() // no destination configured — silently skip
+      const { data: fb } = await admin.database
+        .from('feedback')
+        .select('id, user_id, body, images')
+        .eq('id', body.feedbackId)
+        .maybeSingle()
+      const feedback = fb as { id: string; user_id: string; body: string; images: { url: string; key: string }[] } | null
+      if (!feedback || feedback.user_id !== uid) return ok() // must be the submitter
+      try {
+        // dedup by feedback id; recipient_id = submitter doubles as a per-user rate limit
+        if (await overHourlyCap(admin, uid)) return ok()
+        if (!(await claim(admin, uid, 'feedback', feedback.id))) return ok()
+        const fromEmail = await emailFor(admin, uid)
+        const fromName = await nameFor(admin, uid)
+        const imgs = Array.isArray(feedback.images) ? feedback.images : []
+        const imgHtml = imgs.length
+          ? `<div style="margin-top:14px">${imgs
+              .map((i) => `<a href="${i.url}"><img src="${i.url}" alt="" style="max-width:160px;border:1px solid #ddd;margin:4px 4px 0 0" /></a>`)
+              .join('')}</div>`
+          : ''
+        await admin.emails.send({
+          to,
+          ...(fromEmail ? { replyTo: fromEmail } : {}),
+          subject: `Feedback from ${fromName}`,
+          html: layout(
+            `<p style="font-size:16px"><b>${esc(fromName)}</b>${fromEmail ? ` (${esc(fromEmail)})` : ''} sent feedback:</p>
+             <blockquote style="border-left:3px solid #111;margin:14px 0;padding:4px 0 4px 14px;color:#333;white-space:pre-wrap">${esc(feedback.body)}</blockquote>
+             ${imgHtml}`,
+            fromEmail ? `Reply to this email to respond directly to ${esc(fromName)}.` : 'Sender email unavailable.',
+          ),
+        })
+      } catch {
+        /* email not configured / send failed — silent */
+      }
     }
   } catch {
     /* best-effort */
